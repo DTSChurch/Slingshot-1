@@ -847,6 +847,9 @@ namespace Slingshot.F1.Utilities
 
                         ImportPackage.WriteToPackage( requirementDate );
                         attributes.Add( requirementDate );
+
+                        //Console.WriteLine(requirementName + " " + requirementId);
+                        //Console.WriteLine(sourceRequirement.ToString());
                     }
                 }
             }
@@ -861,6 +864,8 @@ namespace Slingshot.F1.Utilities
                 _client.Authenticator = OAuth1Authenticator.ForProtectedResource( ApiConsumerKey, ApiConsumerSecret, OAuthToken, OAuthSecret );
                 _request = new RestRequest( API_ATTRIBUTE_GROUPS, Method.GET );
                 _request.AddHeader( "content-type", "application/xml" );
+
+                Console.WriteLine(API_ATTRIBUTE_GROUPS);
 
                 var response = _client.Execute( _request );
                 ApiCounter++;
@@ -886,8 +891,35 @@ namespace Slingshot.F1.Utilities
                                 FieldType = "Rock.Field.Types.TextFieldType"
                             };
 
-                            ImportPackage.WriteToPackage( personAttribute );
-                            attributes.Add( personAttribute );
+                            ImportPackage.WriteToPackage(personAttribute);
+
+                            // Arbitrarily create a comment key
+                            var personAttributeComment = new PersonAttribute()
+                            {
+                                Name = attributeName+ " Comment",
+                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Comment",
+                                Category = attributeGroup,
+                                FieldType = "Rock.Field.Types.TextFieldType"
+                            };
+
+                            ImportPackage.WriteToPackage(personAttributeComment);
+
+                            // Arbitrarily create a date key
+                            var personAttributeDate = new PersonAttribute()
+                            {
+                                Name = attributeName + " Date",
+                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Date",
+                                Category = attributeGroup,
+                                FieldType = "Rock.Field.Types.TextFieldType"
+                            };
+                            
+                            ImportPackage.WriteToPackage( personAttributeDate );
+
+                            // Add the attributes to the list
+                            attributes.Add(personAttribute);
+                            attributes.Add( personAttributeComment );
+                            attributes.Add( personAttributeDate );
+
                         }
                     }
                 }

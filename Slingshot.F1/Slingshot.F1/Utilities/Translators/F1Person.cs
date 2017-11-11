@@ -231,64 +231,48 @@ namespace Slingshot.F1.Utilities.Translators
                 {
                     if ( personAttributes.Any() )
                     {
-                        var attributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters();
-                        
-                        if ( personAttributes.Where( p => attributeKey.Equals( p.Key ) ).Any() )
+                        // Add the comment (if not empty) by matching with the KeyName that was Arbitrarily created in F1Api class.  
+                        var commentAttributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters() + "Comment";
+                        string comment = attribute.Element("comment").Value;
+
+                        if (personAttributes.Where(p => commentAttributeKey.Equals(p.Key)).Any() && comment.IsNotNullOrWhitespace())
                         {
-                            usedAttributeKeys.Add( attributeKey );
+                            usedAttributeKeys.Add(commentAttributeKey);
 
-                            if ( usedAttributeKeys.Where( a => attributeKey.Equals( a ) ).Count() <= 1 )
+                            if (usedAttributeKeys.Where(a => commentAttributeKey.Equals(a)).Count() <= 1)
                             {
-                                StringBuilder attribValue = new StringBuilder();
-
-                                DateTime? startDate = attribute.Element( "startDate" )?.Value.AsDateTime();
-                                DateTime? endDate = attribute.Element( "endDate" )?.Value.AsDateTime();
-                                string comment = attribute.Element( "comment" ).Value;
-
-                                if ( startDate.HasValue )
+                                person.Attributes.Add(new PersonAttributeValue
                                 {
-                                    attribValue.Append( "Start Date: " + startDate.Value.ToShortDateString() );
-                                }
-
-                                if ( startDate.HasValue && endDate.HasValue )
-                                {
-                                    attribValue.Append( " " );
-                                }
-
-                                if ( endDate.HasValue )
-                                {
-                                    attribValue.Append( "End Date: " + endDate.Value.ToShortDateString() );
-                                }
-
-                                if ( comment.IsNotNullOrWhitespace() && ( startDate.HasValue || endDate.HasValue ) )
-                                {
-                                    attribValue.Append( " " );
-                                }
-
-                                if ( comment.IsNotNullOrWhitespace() )
-                                {
-                                    attribValue.Append( "Comment: " + comment );
-                                }
-
-                                // People in F1 can have an attribute assigned without a value.
-                                //  For these cases, the value will be set to Yes.
-                                if ( !startDate.HasValue && !endDate.HasValue && comment.IsNullOrWhiteSpace() )
-                                {
-                                    attribValue.Append( "Yes" );
-                                }
-
-                                person.Attributes.Add( new PersonAttributeValue
-                                {
-                                    AttributeKey = attributeKey,
-                                    AttributeValue = attribValue.ToString(),
+                                    AttributeKey = commentAttributeKey,
+                                    AttributeValue = comment,
                                     PersonId = person.Id
-                                } );
+                                });
                             }
-                        }                       
+                        }
+
+                        // Add the date (if not null) by matching with the KeyName that was Arbitrarily created in F1Api class. 
+                        var dateAttributeKey = attribute.Element("attributeGroup").Element("attribute").Element("name").Value.RemoveSpaces().RemoveSpecialCharacters() + "Date";
+                        DateTime? startDate = attribute.Element("startDate")?.Value.AsDateTime();
+
+                        if (personAttributes.Where(p => dateAttributeKey.Equals(p.Key)).Any() && startDate != null)
+                        {
+                            usedAttributeKeys.Add(dateAttributeKey);
+
+                            if (usedAttributeKeys.Where(a => dateAttributeKey.Equals(a)).Count() <= 1)
+                            {
+                                person.Attributes.Add(new PersonAttributeValue
+                                {
+                                    AttributeKey = dateAttributeKey,
+                                    AttributeValue = startDate.Value.ToString( "o" ), // save as UTC date format
+                                    PersonId = person.Id
+                                });
+                            }
+                        }
+
                     }
                 }
 
-                // person requirements
+                // person requirements.  Validates the person attributes with what was found in F1.
                 var requirements = inputPerson.Element( "peopleRequirements" );
                 foreach ( var requirement in requirements.Elements() )
                 {
