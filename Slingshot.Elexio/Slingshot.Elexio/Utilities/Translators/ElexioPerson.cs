@@ -15,9 +15,9 @@ namespace Slingshot.Elexio.Utilities.Translators
         {
             var person = new Person();
 
-            if ( row.Field<int?>( "ContactID" ) != null )
+            if ( row.Field<int?>( "Id" ) != null )
             {
-                person.Id = row.Field<int>( "ContactID" );
+                person.Id = row.Field<int>( "Id" );
 
                 // names
                 person.FirstName = row.Field<string>( "FirstName" );
@@ -27,10 +27,10 @@ namespace Slingshot.Elexio.Utilities.Translators
                 person.Suffix = row.Field<string>( "Suffix" );
 
                 // family
-                person.FamilyId = row.Field<int?>( "AddressID" );
-                person.FamilyName = row.Field<string>( "AddressName" );
+                person.FamilyId = row.Field<int?>( "FamilyId" );
+                person.FamilyName = row.Field<string>( "FamilyName" );
 
-                var familyRole = row.Field<string>( "familyPosition" );
+                var familyRole = row.Field<string>( "familyRole" );
                 switch ( familyRole )
                 {
                     case "Household Head":
@@ -106,8 +106,10 @@ namespace Slingshot.Elexio.Utilities.Translators
                 }
 
                 // connection/record status
-                string status = row.Field<string>( "Status" );
+                string status = row.Field<string>( "ConnectionStatus" );
                 person.ConnectionStatus = status;
+
+                person.RecordStatus = RecordStatus.Active;
 
                 switch ( status )
                 {
@@ -128,8 +130,8 @@ namespace Slingshot.Elexio.Utilities.Translators
                 }
 
                 // dates
-                person.CreatedDateTime = row.Field<DateTime?>( "DateCreated" );
-                person.ModifiedDateTime = row.Field<DateTime?>( "DateUpdated" );
+                person.CreatedDateTime = row.Field<DateTime?>( "CreatedDateTime" );
+                person.ModifiedDateTime = row.Field<DateTime?>( "ModifiedDateTime" );
                 person.Birthdate = row.Field<DateTime?>( "Birthdate" );
 
                 // campus?
@@ -204,7 +206,7 @@ namespace Slingshot.Elexio.Utilities.Translators
 
                 // phone numbers
                 // home
-                var homePhone = row.Field<string>( "Phone" );
+                var homePhone = row.Field<string>( "HomePhone" );
                 if ( homePhone.IsNotNullOrWhitespace() )
                 {
                     person.PhoneNumbers.Add( new PersonPhone
@@ -216,7 +218,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                 }
 
                 // cell
-                var cellPhone = row.Field<string>( "Mobile" );
+                var cellPhone = row.Field<string>( "MobilePhone" );
                 if ( cellPhone.IsNotNullOrWhitespace() )
                 {
                     person.PhoneNumbers.Add( new PersonPhone
@@ -227,7 +229,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
-                // addresses
+                // household address
                 var street = row.Field<string>( "Street" );
                 var city = row.Field<string>( "City" );
                 var state = row.Field<string>( "State" );

@@ -11,8 +11,8 @@ namespace Slingshot.Elexio.Utilities.Translators
         {
             var financialAccount = new FinancialAccount();
 
-            financialAccount.Id = row.Field<Int16>( "CodeId" );
-            financialAccount.Name = row.Field<string>( "Description" );
+            financialAccount.Id = row.Field<int>( "Id" );
+            financialAccount.Name = row.Field<string>( "Name" );
 
             return financialAccount;
         }

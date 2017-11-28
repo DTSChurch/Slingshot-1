@@ -67,8 +67,6 @@ namespace Slingshot.Elexio
             // clear filesystem directories
             ElexioApi.InitializeExport();
 
-
-
             // export individuals
             if ( exportSettings.ExportIndividuals )
             {
@@ -84,38 +82,38 @@ namespace Slingshot.Elexio
                 }
             }
 
-            //// export contributions
-            //if ( exportSettings.ExportContributions )
-            //{
-            //    exportWorker.ReportProgress( 30, "Exporting Financial Accounts..." );
+            // export contributions
+            if ( exportSettings.ExportContributions )
+            {
+                exportWorker.ReportProgress( 30, "Exporting Financial Accounts..." );
 
-            //    ElexioApi.ExportFinancialAccounts();
-            //    if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
-            //    {
-            //        exportWorker.ReportProgress( 31, $"Error exporting financial accounts: {ElexioApi.ErrorMessage}" );
-            //    }
+                ElexioApi.ExportFinancialAccounts();
+                if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
+                {
+                    exportWorker.ReportProgress( 31, $"Error exporting financial accounts: {ElexioApi.ErrorMessage}" );
+                }
 
-            //    exportWorker.ReportProgress( 35, "Exporting Contribution Information..." );
+                exportWorker.ReportProgress( 35, "Exporting Contribution Information..." );
 
-            //    ElexioApi.ExportContributions( exportSettings.ModifiedSince );
-            //    if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
-            //    {
-            //        exportWorker.ReportProgress( 36, $"Error exporting financial batches: {ElexioApi.ErrorMessage}" );
-            //    }
-            //}
+                ElexioApi.ExportContributions( exportSettings.ModifiedSince );
+                if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
+                {
+                    exportWorker.ReportProgress( 36, $"Error exporting financial batches: {ElexioApi.ErrorMessage}" );
+                }
+            }
 
-            //// export group types
-            //if ( ExportGroupTypes.Count > 0 )
-            //{
-            //    exportWorker.ReportProgress( 54, $"Exporting Groups..." );
+            // export group types
+            if ( ExportGroupTypes.Count > 0 )
+            {
+                exportWorker.ReportProgress( 54, $"Exporting Groups..." );
 
-            //    ElexioApi.ExportGroups( ExportGroupTypes.Select( t => t.Id ).ToList(), exportSettings.ModifiedSince );
+                ElexioApi.ExportGroups( ExportGroupTypes.Select( t => t.Id ).ToList(), exportSettings.ModifiedSince );
 
-            //    if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
-            //    {
-            //        exportWorker.ReportProgress( 54, $"Error exporting groups: {ElexioApi.ErrorMessage}" );
-            //    }
-            //}
+                if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
+                {
+                    exportWorker.ReportProgress( 54, $"Error exporting groups: {ElexioApi.ErrorMessage}" );
+                }
+            }
 
             //// export attendance 
             //if ( exportSettings.ExportAttendance )
@@ -132,7 +130,7 @@ namespace Slingshot.Elexio
             //}
 
             // finalize the package
-            ImportPackage.FinalizePackage( "ccb-export.slingshot" );
+            ImportPackage.FinalizePackage( "elexio-export.slingshot" );
 
             // schedule the API status to update (the status takes a few mins to update)
             _apiUpdateTimer.Start();
@@ -158,13 +156,12 @@ namespace Slingshot.Elexio
         private void Window_Loaded( object sender, RoutedEventArgs e )
         {
             // add group types
-            //ExportGroupTypes = ElexioApi.GetGroupTypes();
+            ExportGroupTypes = ElexioApi.GetGroupTypes();
 
-            //foreach ( var groupType in ExportGroupTypes )
-            //{
-            //    //cblGroupTypes.Items.Add( groupType );
-            //    GroupTypesCheckboxItems.Add( new CheckListItem { Id = groupType.Id, Text = groupType.Name, Checked = true } );
-            //}
+            foreach ( var groupType in ExportGroupTypes )
+            {
+                GroupTypesCheckboxItems.Add( new CheckListItem { Id = groupType.Id, Text = groupType.Name, Checked = true } );
+            }
 
             cblGroupTypes.ItemsSource = GroupTypesCheckboxItems;
 
@@ -198,7 +195,6 @@ namespace Slingshot.Elexio
 
         #region Window Events
 
-
         private void cbGroups_Checked( object sender, RoutedEventArgs e )
         {
             if ( cbGroups.IsChecked.Value )
@@ -211,6 +207,7 @@ namespace Slingshot.Elexio
                 gridMain.RowDefinitions[5].Height = new GridLength( 0 );
             }
         }
+
         #endregion
     }
 
@@ -230,6 +227,7 @@ namespace Slingshot.Elexio
     public class CheckListItem
     {
         public int Id { get; set; }
+
         public string Text { get; set; }
 
         public bool Checked { get; set; }

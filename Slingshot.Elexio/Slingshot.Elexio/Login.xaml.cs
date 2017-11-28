@@ -27,13 +27,16 @@ namespace Slingshot.Elexio
             InitializeComponent();
         }
 
+        #region Window Events
+
         private void btnLogin_Click( object sender, RoutedEventArgs e )
         {
             lblMessage.Text = string.Empty;
 
-            if ( txtHostname.Text != string.Empty && txtDatabase.Text != null && txtApiPassword.Text != string.Empty && txtApiUsername.Text != string.Empty )
+            if ( ( txtHostname.Text != string.Empty && txtDatabase.Text != string.Empty && cbWindowsAuth.IsChecked == true ) ||
+                 ( txtHostname.Text != string.Empty && txtDatabase.Text != string.Empty && cbSQLAuth.IsChecked == true && txtApiUsername.Text != string.Empty && txtApiPassword.Text != string.Empty ))
             {
-                ElexioApi.Connect( txtHostname.Text, txtDatabase.Text, txtApiUsername.Text, txtApiPassword.Text );
+                ElexioApi.Connect( txtHostname.Text, txtDatabase.Text, txtApiUsername.Text, txtApiPassword.Text, cbSQLAuth.IsChecked.Value );
 
                 if ( ElexioApi.IsConnected )
                 {
@@ -51,5 +54,23 @@ namespace Slingshot.Elexio
                 lblMessage.Text = "Please provide the information needed to connect.";
             }
         }
+
+        private void cbSQLAuth_Click( object sender, RoutedEventArgs e )
+        {
+            cbSQLAuth.IsChecked = true;
+            cbWindowsAuth.IsChecked = false;
+            gridMain.RowDefinitions[4].Height = new GridLength( 1, GridUnitType.Auto );
+            gridMain.RowDefinitions[5].Height = new GridLength( 1, GridUnitType.Auto );
+        }
+
+        private void cbWindowsAuth_Click( object sender, RoutedEventArgs e )
+        {
+            cbWindowsAuth.IsChecked = true;
+            cbSQLAuth.IsChecked = false;
+            gridMain.RowDefinitions[4].Height = new GridLength( 0 );
+            gridMain.RowDefinitions[5].Height = new GridLength( 0 );
+        }
+
+        #endregion
     }
 }
