@@ -897,16 +897,6 @@ namespace Slingshot.F1.Utilities
                             string attributeGroup = sourceAttributeGroup.Element( "name" ).Value;
                             string attributeName = attribute.Element( "name" ).Value;
 
-                            var personAttribute = new PersonAttribute()
-                            {
-                                Name = attributeName,
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters(),
-                                Category = attributeGroup,
-                                FieldType = "Rock.Field.Types.TextFieldType"
-                            };
-
-                            ImportPackage.WriteToPackage(personAttribute);
-
                             // Arbitrarily create a comment key
                             var personAttributeComment = new PersonAttribute()
                             {
@@ -930,7 +920,6 @@ namespace Slingshot.F1.Utilities
                             ImportPackage.WriteToPackage( personAttributeDate );
 
                             // Add the attributes to the list
-                            attributes.Add(personAttribute);
                             attributes.Add( personAttributeComment );
                             attributes.Add( personAttributeDate );
 
