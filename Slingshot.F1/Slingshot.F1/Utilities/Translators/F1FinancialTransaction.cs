@@ -11,7 +11,7 @@ namespace Slingshot.F1.Utilities.Translators
 {
     public static class F1FinancialTransaction
     {
-        public static FinancialTransaction Translate( XElement inputTransaction )
+        public static FinancialTransaction Translate( XElement inputTransaction, List<FamilyMember> familyMembers )
         {
             var transaction = new FinancialTransaction();
 
@@ -25,7 +25,27 @@ namespace Slingshot.F1.Utilities.Translators
             transaction.Summary = inputTransaction.Element( "memo" )?.Value;
             transaction.TransactionCode = inputTransaction.Element( "accountReference" )?.Value;
             transaction.TransactionDate = inputTransaction.Element( "receivedDate" )?.Value.AsDateTime();
-            transaction.AuthorizedPersonId = inputTransaction.Element( "person" ).Attribute( "id" ).Value.AsInteger();
+
+            var personId = inputTransaction.Element( "person" ).Attribute( "id" ).Value.AsIntegerOrNull();
+            var householdId = inputTransaction.Element( "household" ).Attribute( "id" ).Value.AsIntegerOrNull();
+
+            if ( personId.HasValue )
+            {
+                transaction.AuthorizedPersonId = personId.Value;
+            }
+            else if ( householdId.HasValue )
+            {
+                transaction.AuthorizedPersonId = familyMembers
+                        .Where( f => f.HouseholdId == householdId.Value )
+                        .OrderBy( f => f.FamilyRoleId )
+                        .Select( f => f.PersonId )
+                        .FirstOrDefault();
+            }
+            else
+            {
+                // should not happen
+            }
+            
 
             var currencyType = inputTransaction.Element( "contributionType" ).Element( "name" ).Value;
 

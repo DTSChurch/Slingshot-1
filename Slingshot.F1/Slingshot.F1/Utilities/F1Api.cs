@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 
@@ -25,6 +26,7 @@ namespace Slingshot.F1.Utilities
         private static RestRequest _request;
         private static int loopThreshold = 100000000;
         private static List<int> AccountIds;
+        private static List<FamilyMember> familyMembers = new List<FamilyMember>();
 
         /// <summary>
         ///  Set F1Api.DumpResponseToXmlFile to true to save all API Responses 
@@ -221,6 +223,12 @@ namespace Slingshot.F1.Utilities
         public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 1000 )
         {
             HashSet<int> personIds = new HashSet<int>();
+
+            // if empty, build head of household lookups
+            if ( !familyMembers.Any() )
+            {
+                familyMembers = GetFamilyMembers();
+            }
             
             // write out the person attributes 
             var personAttributes = WritePersonAttributes();
@@ -268,7 +276,7 @@ namespace Slingshot.F1.Utilities
                                     //  twice by the API.  
                                     if ( !personIds.Contains( personNode.Attribute( "id" ).Value.AsInteger() ) )
                                     {
-                                        var importPerson = F1Person.Translate( personNode, personAttributes );
+                                        var importPerson = F1Person.Translate( personNode, familyMembers, personAttributes );
 
                                         if ( importPerson != null )
                                         {
@@ -281,7 +289,7 @@ namespace Slingshot.F1.Utilities
                                         if ( imageURI.IsNotNullOrWhitespace() )
                                         {
                                             // building the URI manually since the imageURI doesn't return a valid image
-                                            _request = new RestRequest( API_INDIVIDUAL + "/" + personId + "/Images" , Method.GET );
+                                            _request = new RestRequest( API_INDIVIDUAL + "/" + personId + "/Images", Method.GET );
 
                                             var image = _client.DownloadData( _request );
                                             ApiCounter++;
@@ -548,6 +556,12 @@ namespace Slingshot.F1.Utilities
         {
             HashSet<int> transactionIds = new HashSet<int>();
 
+            // if empty, build head of household lookups
+            if ( !familyMembers.Any() )
+            {
+                familyMembers = GetFamilyMembers();
+            }
+
             // we'll make an api call for each month until the modifiedSince date 
             var today = DateTime.Now;
             var numberOfMonths = ( ( ( today.Year - modifiedSince.Year ) * 12 ) + today.Month - modifiedSince.Month ) + 1;
@@ -611,7 +625,7 @@ namespace Slingshot.F1.Utilities
                                     //  that a transaction only gets imported once.
                                     if ( !transactionIds.Contains( sourceTransaction.Attribute( "id" ).Value.AsInteger() ) )
                                     {
-                                        var importTransaction = F1FinancialTransaction.Translate( sourceTransaction );
+                                        var importTransaction = F1FinancialTransaction.Translate( sourceTransaction, familyMembers );
                                         var importTransactionDetail = F1FinancialTransactionDetail.Translate( sourceTransaction );
 
                                         if ( importTransaction != null )
@@ -625,18 +639,18 @@ namespace Slingshot.F1.Utilities
                                         }
 
                                         // save check image
-                                        //var checkImageId = sourceTransaction.Element( "referenceImage" ).Attribute( "id" )?.Value;
-                                        //if ( checkImageId.IsNotNullOrWhitespace() )
-                                        //{
-                                        //    _request = new RestRequest( API_CONTRIBUTION_RECEIPT_IMAGE + checkImageId, Method.GET );
+                                        var checkImageId = sourceTransaction.Element( "referenceImage" ).Attribute( "id" )?.Value;
+                                        if ( checkImageId.IsNotNullOrWhitespace() )
+                                        {
+                                            _request = new RestRequest( API_CONTRIBUTION_RECEIPT_IMAGE + checkImageId, Method.GET );
 
-                                        //    var image = _client.DownloadData( _request );
-                                        //    ApiCounter++;
+                                            var image = _client.DownloadData( _request );
+                                            ApiCounter++;
 
-                                        //    var transactionId = sourceTransaction.Attribute( "id" ).Value;
-                                        //    var path = Path.Combine( ImportPackage.ImageDirectory, "FinancialTransaction_" + transactionId + "_0.jpg" );
-                                        //    File.WriteAllBytes( path, image );
-                                        //}
+                                            var transactionId = sourceTransaction.Attribute( "id" ).Value;
+                                            var path = Path.Combine( ImportPackage.ImageDirectory, "FinancialTransaction_" + transactionId + "_0.jpg" );
+                                            File.WriteAllBytes( path, image );
+                                        }
                                         transactionIds.Add( sourceTransaction.Attribute( "id" ).Value.AsInteger() );
                                     }
                                 }
@@ -994,5 +1008,125 @@ namespace Slingshot.F1.Utilities
                 } );
             }
         }
+
+        public static List<FamilyMember> GetFamilyMembers()
+        {
+            var headOfHouseholds = new List<FamilyMember>();
+            HashSet<int> personIds = new HashSet<int>();
+
+            int currentPage = 1;
+            int loopCounter = 0;
+            bool moreIndividualsExist = true;
+
+            try
+            {
+                while ( moreIndividualsExist )
+                {
+                    _client.Authenticator = OAuth1Authenticator.ForProtectedResource( ApiConsumerKey, ApiConsumerSecret, OAuthToken, OAuthSecret );
+                    _request = new RestRequest( API_INDIVIDUALS, Method.GET );
+                    _request.AddQueryParameter( "lastUpdatedDate", "1/1/1901" );
+                    _request.AddQueryParameter( "recordsPerPage", "1000" );
+                    _request.AddQueryParameter( "page", currentPage.ToString() );
+                    //_request.AddQueryParameter( "include", "addresses,attributes,communications,requirements" );
+                    _request.AddHeader( "content-type", "application/vnd.fellowshiponeapi.com.people.people.v2+xml" );
+
+                    var response = _client.Execute( _request );
+                    ApiCounter++;
+
+                    XDocument xdoc = XDocument.Parse( response.Content );
+
+                    var records = xdoc.Element( "results" );
+
+                    if ( records != null )
+                    {
+                        var returnCount = records.Attribute( "count" )?.Value.AsIntegerOrNull();
+                        var additionalPages = records.Attribute( "additionalPages" ).Value.AsInteger();
+
+                        if ( returnCount.HasValue )
+                        {
+                            foreach ( var personNode in records.Elements() )
+                            {
+                                if ( personNode.Attribute( "id" ) != null && personNode.Attribute( "id" ).Value.AsIntegerOrNull().HasValue )
+                                {
+                                    // If a person is updated during an export, the person could be returned 
+                                    //  twice by the API.  
+                                    if ( !personIds.Contains( personNode.Attribute( "id" ).Value.AsInteger() ) )
+                                    {
+                                        var householdMemberType = personNode.Element( "householdMemberType" ).Attribute( "id" ).Value.AsIntegerOrNull();
+                                        if ( householdMemberType.HasValue )
+                                        {
+                                            FamilyMember member = new FamilyMember();
+
+                                            member.PersonId = personNode.Attribute( "id" ).Value.AsInteger();
+                                            member.HouseholdId = personNode.Attribute( "householdID" ).Value.AsInteger();
+                                            member.FamilyRoleId = householdMemberType.Value;
+                                            var campusName = personNode.Element( "status" ).Element( "subStatus" ).Element( "name" )?.Value;
+
+                                            if ( campusName.IsNotNullOrWhitespace() )
+                                            {
+                                                member.HouseholdCampusName = campusName;
+
+                                                // generate a unique campus id
+                                                MD5 md5Hasher = MD5.Create();
+                                                var hashed = md5Hasher.ComputeHash( Encoding.UTF8.GetBytes( campusName ) );
+                                                var campusId = Math.Abs( BitConverter.ToInt32( hashed, 0 ) ); // used abs to ensure positive number
+                                                if ( campusId > 0 )
+                                                {
+                                                    member.HouseholdCampusId = campusId;
+                                                }
+                                            }
+
+                                            familyMembers.Add( member );
+                                        }
+
+                                        personIds.Add( personNode.Attribute( "id" ).Value.AsInteger() );
+                                    }
+                                }
+                            }
+
+                            if ( additionalPages <= 0 && returnCount <= 0 )
+                            {
+                                moreIndividualsExist = false;
+                            }
+                            else
+                            {
+                                currentPage++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        moreIndividualsExist = false;
+                    }
+
+                    // developer safety blanket (prevents eating all the api calls for the day) 
+                    if ( loopCounter > loopThreshold )
+                    {
+                        break;
+                    }
+                    loopCounter++;
+                }
+
+            }
+            catch ( Exception ex )
+            {
+                ErrorMessage = ex.Message;
+            }
+
+            return familyMembers;
+        }
+    }
+
+    public class FamilyMember
+    {
+        public int HouseholdId { get; set; }
+
+        public int PersonId { get; set; }
+
+        public int FamilyRoleId { get; set; }
+
+        public string HouseholdCampusName { get; set; }
+
+        public int? HouseholdCampusId { get; set; }
     }
 }

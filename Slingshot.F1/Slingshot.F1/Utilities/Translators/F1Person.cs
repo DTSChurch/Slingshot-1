@@ -12,7 +12,7 @@ namespace Slingshot.F1.Utilities.Translators
 {
     public static class F1Person
     {
-        public static Person Translate( XElement inputPerson, List<PersonAttribute> personAttributes )
+        public static Person Translate( XElement inputPerson, List<FamilyMember> familyMembers, List<PersonAttribute> personAttributes )
         {
             var person = new Person();
             var notes = new List<string>();
@@ -78,7 +78,8 @@ namespace Slingshot.F1.Utilities.Translators
                             PhoneNumber = comm.Element( "communicationValue" ).Value
                         } );
                     }
-                    else if ( comm.Element( "communicationType" ).Element( "name" ).Value == "Email" )
+                    else if ( comm.Element( "communicationType" ).Element( "name" ).Value == "Email" &&
+                              comm.Element( "preferred" ).Value == "true" )
                     {
                         person.Email = comm.Element( "communicationValue" ).Value;
                     }
@@ -158,11 +159,24 @@ namespace Slingshot.F1.Utilities.Translators
                 }
 
                 // connection status
-                person.ConnectionStatus = inputPerson.Element( "status" ).Element( "name" )?.Value;
+                var status = inputPerson.Element( "status" ).Element( "name" )?.Value;
+                person.ConnectionStatus = status;
 
 
                 // record status
-                if ( inputPerson.Element( "status" ).Element( "name" )?.Value == "Inactive Member" )
+                if ( status == "Inactive Member" )
+                {
+                    person.RecordStatus = RecordStatus.Inactive;
+                }
+                else if ( status == "Inactive" )
+                {
+                    person.RecordStatus = RecordStatus.Inactive;
+                }
+                else if ( status == "Deceased" )
+                {
+                    person.RecordStatus = RecordStatus.Inactive;
+                }
+                else if ( status == "Dropped" )
                 {
                     person.RecordStatus = RecordStatus.Inactive;
                 }
@@ -192,29 +206,38 @@ namespace Slingshot.F1.Utilities.Translators
                 {
                     // likely the person is a visitor and should belong to their own family
                     person.FamilyRole = FamilyRole.Child;
-                    person.FamilyId = null;
+
+                    // generate a new unique family id
+                    if ( person.FirstName.IsNotNullOrWhitespace() || person.LastName.IsNotNullOrWhitespace() ||
+                         person.MiddleName.IsNotNullOrWhitespace() || person.NickName.IsNotNullOrWhitespace() )
+                    {
+                        MD5 md5Hasher = MD5.Create();
+                        var hashed = md5Hasher.ComputeHash( Encoding.UTF8.GetBytes( person.FirstName + person.NickName + person.MiddleName + person.LastName ) );
+                        var familyId = Math.Abs( BitConverter.ToInt32( hashed, 0 ) ); // used abs to ensure positive number
+                        if ( familyId > 0 )
+                        {
+                            person.FamilyId = familyId;
+                        }
+                    }
+                    
                 }
 
                 // campus
-
-                // Note: Most F1 Churches use sub status to track the campus.
                 Campus campus = new Campus();
                 person.Campus = campus;
 
-                string campusName = inputPerson.Element( "status" ).Element( "subStatus" ).Element( "name" )?.Value;
-                if ( campusName.IsNotNullOrWhitespace() )
-                {
-                    campus.CampusName = campusName;
+                // Since family members can have different campuses and Slingshot will set the family campus to the first family
+                // member it sees, each family member will be assigned the head of household's campus.
+                var headOfHousehold = familyMembers
+                        .Where( h => h.HouseholdId == person.FamilyId )
+                        .OrderBy( h => h.FamilyRoleId )
+                        .FirstOrDefault();
 
-                    // generate a unique campus id
-                    MD5 md5Hasher = MD5.Create();
-                    var hashed = md5Hasher.ComputeHash( Encoding.UTF8.GetBytes( campusName ) );
-                    var campusId = Math.Abs( BitConverter.ToInt32( hashed, 0 ) ); // used abs to ensure positive number
-                    if ( campusId > 0 )
-                    {
-                        campus.CampusId = campusId;
-                    }
-                }
+                if ( headOfHousehold != null && headOfHousehold.HouseholdCampusId > 0 )
+                {
+                    campus.CampusName = headOfHousehold.HouseholdCampusName;
+                    campus.CampusId = headOfHousehold.HouseholdCampusId.Value;
+                }                        
 
                 // person attributes
 
@@ -235,18 +258,31 @@ namespace Slingshot.F1.Utilities.Translators
                         var commentAttributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters() + "Comment";
                         string comment = attribute.Element("comment").Value;
 
-                        if (personAttributes.Where(p => commentAttributeKey.Equals(p.Key)).Any() && comment.IsNotNullOrWhitespace())
+                        if (personAttributes.Where(p => commentAttributeKey.Equals(p.Key)).Any() )
                         {
                             usedAttributeKeys.Add(commentAttributeKey);
 
                             if (usedAttributeKeys.Where(a => commentAttributeKey.Equals(a)).Count() <= 1)
                             {
-                                person.Attributes.Add(new PersonAttributeValue
+                                if ( comment.IsNotNullOrWhitespace() )
                                 {
-                                    AttributeKey = commentAttributeKey,
-                                    AttributeValue = comment,
-                                    PersonId = person.Id
-                                });
+                                    person.Attributes.Add( new PersonAttributeValue
+                                    {
+                                        AttributeKey = commentAttributeKey,
+                                        AttributeValue = comment,
+                                        PersonId = person.Id
+                                    } );
+                                }
+                                else
+                                {
+                                    person.Attributes.Add( new PersonAttributeValue
+                                    {
+                                        AttributeKey = commentAttributeKey,
+                                        AttributeValue = "True",
+                                        PersonId = person.Id
+                                    } );
+                                }
+                                
                             }
                         }
 
