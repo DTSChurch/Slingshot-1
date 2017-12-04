@@ -220,7 +220,7 @@ namespace Slingshot.F1.Utilities
         /// </summary>
         /// <param name="modifiedSince">The modified since.</param>
         /// <param name="peoplePerPage">The people per page.</param>
-        public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 1000 )
+        public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 5000 )
         {
             HashSet<int> personIds = new HashSet<int>();
 
@@ -1027,9 +1027,8 @@ namespace Slingshot.F1.Utilities
                     _client.Authenticator = OAuth1Authenticator.ForProtectedResource( ApiConsumerKey, ApiConsumerSecret, OAuthToken, OAuthSecret );
                     _request = new RestRequest( API_INDIVIDUALS, Method.GET );
                     _request.AddQueryParameter( "lastUpdatedDate", "1/1/1901" );
-                    _request.AddQueryParameter( "recordsPerPage", "1000" );
+                    _request.AddQueryParameter( "recordsPerPage", "10000" );
                     _request.AddQueryParameter( "page", currentPage.ToString() );
-                    //_request.AddQueryParameter( "include", "addresses,attributes,communications,requirements" );
                     _request.AddHeader( "content-type", "application/vnd.fellowshiponeapi.com.people.people.v2+xml" );
 
                     var response = _client.Execute( _request );
