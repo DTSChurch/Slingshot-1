@@ -892,12 +892,13 @@ namespace Slingshot.F1.Utilities
                 {
                     foreach ( var sourceAttributeGroup in attributeGroups.Elements() )
                     {
+                        // create 3 Rock attributes for every one F1 attribute 
                         foreach ( var attribute in sourceAttributeGroup.Elements( "attribute" ) )
                         {
                             string attributeGroup = sourceAttributeGroup.Element( "name" ).Value;
                             string attributeName = attribute.Element( "name" ).Value;
 
-                            // Arbitrarily create a comment key
+                            // comment attribute
                             var personAttributeComment = new PersonAttribute()
                             {
                                 Name = attributeName+ " Comment",
@@ -908,20 +909,32 @@ namespace Slingshot.F1.Utilities
 
                             ImportPackage.WriteToPackage(personAttributeComment);
 
-                            // Arbitrarily create a date key
-                            var personAttributeDate = new PersonAttribute()
+                            // start date attribute
+                            var personAttributeStartDate = new PersonAttribute()
                             {
-                                Name = attributeName + " Date",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Date",
+                                Name = attributeName + " Start Date",
+                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "StartDate",
                                 Category = attributeGroup,
-                                FieldType = "Rock.Field.Types.TextFieldType"
+                                FieldType = "Rock.Field.Types.DateFieldType"
                             };
                             
-                            ImportPackage.WriteToPackage( personAttributeDate );
+                            ImportPackage.WriteToPackage( personAttributeStartDate );
+
+                            // end date attribute
+                            var personAttributeEndDate = new PersonAttribute()
+                            {
+                                Name = attributeName + " End Date",
+                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "EndDate",
+                                Category = attributeGroup,
+                                FieldType = "Rock.Field.Types.DateFieldType"
+                            };
+
+                            ImportPackage.WriteToPackage( personAttributeEndDate );
 
                             // Add the attributes to the list
                             attributes.Add( personAttributeComment );
-                            attributes.Add( personAttributeDate );
+                            attributes.Add( personAttributeStartDate );
+                            attributes.Add( personAttributeEndDate );
 
                         }
                     }

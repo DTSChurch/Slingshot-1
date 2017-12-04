@@ -287,21 +287,40 @@ namespace Slingshot.F1.Utilities.Translators
                         }
 
                         // Add the date (if not null) by matching with the KeyName that was Arbitrarily created in F1Api class. 
-                        var dateAttributeKey = attribute.Element("attributeGroup").Element("attribute").Element("name").Value.RemoveSpaces().RemoveSpecialCharacters() + "Date";
+                        var startDateAttributeKey = attribute.Element("attributeGroup").Element("attribute").Element("name").Value.RemoveSpaces().RemoveSpecialCharacters() + "StartDate";
                         DateTime? startDate = attribute.Element("startDate")?.Value.AsDateTime();
 
-                        if (personAttributes.Where(p => dateAttributeKey.Equals(p.Key)).Any() && startDate != null)
+                        if (personAttributes.Where(p => startDateAttributeKey.Equals(p.Key)).Any() && startDate != null)
                         {
-                            usedAttributeKeys.Add(dateAttributeKey);
+                            usedAttributeKeys.Add(startDateAttributeKey);
 
-                            if (usedAttributeKeys.Where(a => dateAttributeKey.Equals(a)).Count() <= 1)
+                            if (usedAttributeKeys.Where(a => startDateAttributeKey.Equals(a)).Count() <= 1)
                             {
                                 person.Attributes.Add(new PersonAttributeValue
                                 {
-                                    AttributeKey = dateAttributeKey,
+                                    AttributeKey = startDateAttributeKey,
                                     AttributeValue = startDate.Value.ToString( "o" ), // save as UTC date format
                                     PersonId = person.Id
                                 });
+                            }
+                        }
+
+                        // Add the date (if not null) by matching with the KeyName that was Arbitrarily created in F1Api class. 
+                        var endDateAttributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters() + "EndDate";
+                        DateTime? endDate = attribute.Element( "endDate" )?.Value.AsDateTime();
+
+                        if ( personAttributes.Where( p => endDateAttributeKey.Equals( p.Key ) ).Any() && endDate != null )
+                        {
+                            usedAttributeKeys.Add( endDateAttributeKey );
+
+                            if ( usedAttributeKeys.Where( a => endDateAttributeKey.Equals( a ) ).Count() <= 1 )
+                            {
+                                person.Attributes.Add( new PersonAttributeValue
+                                {
+                                    AttributeKey = endDateAttributeKey,
+                                    AttributeValue = endDate.Value.ToString( "o" ), // save as UTC date format
+                                    PersonId = person.Id
+                                } );
                             }
                         }
 
