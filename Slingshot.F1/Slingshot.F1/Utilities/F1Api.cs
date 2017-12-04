@@ -552,7 +552,7 @@ namespace Slingshot.F1.Utilities
         /// Exports the contributions.
         /// </summary>
         /// <param name="modifiedSince">The modified since.</param>
-        public static void ExportContributions( DateTime modifiedSince )
+        public static void ExportContributions( DateTime modifiedSince, bool exportContribImages )
         {
             HashSet<int> transactionIds = new HashSet<int>();
 
@@ -639,18 +639,22 @@ namespace Slingshot.F1.Utilities
                                         }
 
                                         // save check image
-                                        var checkImageId = sourceTransaction.Element( "referenceImage" ).Attribute( "id" )?.Value;
-                                        if ( checkImageId.IsNotNullOrWhitespace() )
+                                        if ( exportContribImages )
                                         {
-                                            _request = new RestRequest( API_CONTRIBUTION_RECEIPT_IMAGE + checkImageId, Method.GET );
+                                            var checkImageId = sourceTransaction.Element( "referenceImage" ).Attribute( "id" )?.Value;
+                                            if ( checkImageId.IsNotNullOrWhitespace() )
+                                            {
+                                                _request = new RestRequest( API_CONTRIBUTION_RECEIPT_IMAGE + checkImageId, Method.GET );
 
-                                            var image = _client.DownloadData( _request );
-                                            ApiCounter++;
+                                                var image = _client.DownloadData( _request );
+                                                ApiCounter++;
 
-                                            var transactionId = sourceTransaction.Attribute( "id" ).Value;
-                                            var path = Path.Combine( ImportPackage.ImageDirectory, "FinancialTransaction_" + transactionId + "_0.jpg" );
-                                            File.WriteAllBytes( path, image );
-                                        }
+                                                var transactionId = sourceTransaction.Attribute( "id" ).Value;
+                                                var path = Path.Combine( ImportPackage.ImageDirectory, "FinancialTransaction_" + transactionId + "_0.jpg" );
+                                                File.WriteAllBytes( path, image );
+                                            }
+                                        }                                    
+
                                         transactionIds.Add( sourceTransaction.Attribute( "id" ).Value.AsInteger() );
                                     }
                                 }

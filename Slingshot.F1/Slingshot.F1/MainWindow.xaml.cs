@@ -116,7 +116,7 @@ namespace Slingshot.F1
 
                 exportWorker.ReportProgress( 36, "Exporting Contribution Information..." );
 
-                F1Api.ExportContributions( exportSettings.ModifiedSince );
+                F1Api.ExportContributions( exportSettings.ModifiedSince, exportSettings.ExportContributionImages );
                 if ( F1Api.ErrorMessage.IsNotNullOrWhitespace() )
                 {
                     exportWorker.ReportProgress( 37, $"Error exporting financial batches: {F1Api.ErrorMessage}" );
@@ -189,7 +189,8 @@ namespace Slingshot.F1
             {
                 ModifiedSince = ( DateTime ) txtImportCutOff.Text.AsDateTime(),
                 ExportContributions = cbContributions.IsChecked.Value,
-                ExportIndividuals = cbIndividuals.IsChecked.Value
+                ExportIndividuals = cbIndividuals.IsChecked.Value,
+                ExportContributionImages = cbExportContribImages.IsChecked.Value
             };
 
             // configure group types to export
@@ -220,6 +221,19 @@ namespace Slingshot.F1
                 gridMain.RowDefinitions[5].Height = new GridLength( 0 );
             }
         }
+
+        private void cbContributions_Checked( object sender, RoutedEventArgs e )
+        {
+            if ( cbContributions.IsChecked.Value )
+            {
+                gridMain.RowDefinitions[6].Height = new GridLength( 1, GridUnitType.Auto );
+            }
+            else
+            {
+                gridMain.RowDefinitions[6].Height = new GridLength( 0 );
+            }
+        }
+
         #endregion
     }
 
@@ -232,6 +246,8 @@ namespace Slingshot.F1
         public bool ExportContributions { get; set; } = true;
 
         public List<int> ExportGroupTypes { get; set; } = new List<int>();
+
+        public bool ExportContributionImages { get; set; } = true;
     }
 
     public class CheckListItem
