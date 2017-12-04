@@ -133,6 +133,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                 person.CreatedDateTime = row.Field<DateTime?>( "CreatedDateTime" );
                 person.ModifiedDateTime = row.Field<DateTime?>( "ModifiedDateTime" );
                 person.Birthdate = row.Field<DateTime?>( "Birthdate" );
+                person.AnniversaryDate = row.Field<DateTime?>( "AnniversaryDate" );
 
                 // campus?
 

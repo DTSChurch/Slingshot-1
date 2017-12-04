@@ -20,6 +20,7 @@ namespace Slingshot.Elexio.Utilities
     public static class ElexioApi
     {
         private static SqlConnection _dbConnection;
+        private static DateTime _modifiedSince;
 
         /// <summary>
         /// Gets or sets the error message.
@@ -89,32 +90,31 @@ namespace Slingshot.Elexio.Utilities
 
         #region SQL Queries
 
-        private const string SQL_PEOPLE = @"
+        private static string SQL_PEOPLE = $@"
 SELECT C.[ContactID] AS [Id]
 	,A.AddressID AS [FamilyId]
-	,A.AddressName AS [FamilyName]
+	,HOH.LastName + ' Family' AS [FamilyName]
 	,FP.[Description] AS [FamilyRole]
-	,C.[FirstName]
-	,C.[NickName]
+	,LEFT(C.[FirstName], 50) AS [FirstName]
+	,LEFT(C.[NickName], 50) AS [NickName]
 	,C.[MiddleName]
-	,C.[LastName]
+	,LEFT(C.[LastName], 50) AS [LastName]
 	,C.[Suffix]
 	,E.Email
 	,C.[Gender]
 	,MS.[Description] AS [MaritalStatus]
 	,C.[Birthdate]
-	-- Anniversary Date
+	,A.[Anniversary] AS [AnniversaryDate]
 	-- Record Status
 	-- Inactive Reason
 	,LS.[Description] AS [ConnectionStatus]
 	-- Email Preference
 	,C.[DateCreated] AS [CreatedDateTime]
 	,C.[DateUpdated] AS [ModifiedDateTime]
-	-- Campus
-	-- Note
+	,HOH.Campus
+	,HOH.CampusId
 	-- Grade
-	--Give Individually
-	-- Is Deceased
+	-- Give Individually
 	
 	-- Phones
 	,P.Phone AS [HomePhone]
@@ -135,7 +135,7 @@ SELECT C.[ContactID] AS [Id]
 	,LO.[Description] AS [Occupation]
 	,LE.[Description] AS [Education]
 	,[BaptismDate]
-	,CASE WHEN BaptizedHere = 1 THEN 'True' ELSE 'False' END AS [BaptizedHere]
+    ,CASE WHEN BaptizedHere = 1 THEN 'True' ELSE 'False' END AS [BaptizedHere]
 FROM [dbo].[tblContacts] C
 INNER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
 INNER JOIN [dbo].[qryLookupStatus] LS ON LS.CodeID = C.[Status]
@@ -147,9 +147,22 @@ LEFT OUTER JOIN [dbo].[qryLookupRace] LR ON LR.CodeID = C.Race
 LEFT OUTER JOIN [dbo].[qryLookupOccupations] LO ON LO.CodeID = C.Occupation
 LEFT OUTER JOIN [dbo].[qryLookupEducation] LE ON LE.CodeID = C.Education
 INNER JOIN [dbo].[tblAddresses] A ON A.AddressID = C.AddressID
+OUTER APPLY (
+	SELECT TOP 1 CC.ContactID
+		,CC.LastName
+		,LC.[Description] AS [Campus]
+		,LC.CodeID AS [CampusId]
+	FROM tblContacts CC
+	LEFT OUTER JOIN qryLookupFamilyPositions LFP ON LFP.CodeID = CC.FamilyPosition
+	LEFT OUTER JOIN qryLookupCampus LC ON LC.CodeID = CC.[Service]
+	WHERE CC.AddressID = C.AddressID 
+	ORDER BY LFP.CodeValue
+) HOH
+WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
+ORDER BY A.AddressID, C.ContactID
 ";
 
-        private const string SQL_PERSON_NOTES = @"
+        private static string SQL_PERSON_NOTES = $@"
 SELECT
 	 CN.[ContactNotesID] AS [Id]
 	,CN.[ContactID] AS [PersonId]
@@ -161,6 +174,7 @@ SELECT
 FROM [dbo].[tblContactNotes] CN
 INNER JOIN [dbo].[qryLookupNoteTypes] NT ON NT.CodeID = CN.NoteType
 WHERE [Notes] IS NOT NULL
+    AND CN.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
 ";
 
         private const string SQL_FINANCIAL_ACCOUNTS = @"
@@ -180,7 +194,7 @@ WHERE (BatchID IS NOT NULL AND BatchID != 0) AND
 GROUP BY BatchID, Batch
 ";
 
-        private const string SQL_FINANCIAL_TRANSACTIONS = @"
+        private static string SQL_FINANCIAL_TRANSACTIONS = $@"
 SELECT 
 	 C.ContributionID AS [Id]
 	,C.BatchID
@@ -201,9 +215,10 @@ SELECT
 	,C.DateUpdated AS [ModifiedDateTime]
 FROM tblContributions C
 INNER JOIN tblCodes CC ON CC.CodeID = C.GivingMethod
+WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
 ";
 
-        private const string SQL_FINANCIAL_TRANSACTION_DETAILS = @"
+        private static string SQL_FINANCIAL_TRANSACTION_DETAILS = $@"
 SELECT 
 	-- Id
 	ContributionID AS [TransactionId]
@@ -212,6 +227,7 @@ SELECT
 	,DateCreated AS [CreatedDateTime]
 	,DateUpdated AS [ModifiedDateTime]
 FROM [dbo].[tblContributions]
+WHERE DateUpdated >= { _modifiedSince.ToShortDateString() }
 ";
 
         private const string SQL_GROUP_TYPES = @"
@@ -228,16 +244,20 @@ SELECT
 	,[Name]
 	,[MinistryType] AS [GroupTypeId]
 FROM tblMinistries M
+WHERE MinistryType != 0
 ORDER BY MinistryID
 ";
 
         private const string SQL_GROUP_MEMBERS = @"
-SELECT 
-	 [ContactID] AS [PersonId]
-	,[Activity] AS [GroupId]
+SELECT DISTINCT
+	 I.[ContactID] AS [PersonId]
+	,I.[Activity] AS [GroupId]
 	,CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END AS [Role]
 FROM [c2737595_data].[dbo].[tblInvolvement] I
+INNER JOIN tblMinistries M ON M.MinistryID = I.Activity AND M.MinistryType = I.ActivityType
+INNER JOIN tblContacts C ON C.ContactID = I.ContactID
 LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
+ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END
 ";
 
         #endregion
@@ -358,6 +378,8 @@ LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
         /// <param name="peoplePerPage">The people per page.</param>
         public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 500 )
         {
+            _modifiedSince = modifiedSince;
+
             // write out the person attributes
             WritePersonAttributes();
 
@@ -417,6 +439,8 @@ LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
         /// <param name="modifiedSince">The modified since.</param>
         public static void ExportContributions( DateTime modifiedSince )
         {
+            _modifiedSince = modifiedSince;
+
             // hardcode a generic financial batch for all transactions that do not have a batch
             ImportPackage.WriteToPackage( new FinancialBatch()
             {
