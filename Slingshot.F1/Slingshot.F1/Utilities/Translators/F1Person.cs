@@ -110,7 +110,7 @@ namespace Slingshot.F1.Utilities.Translators
                             case "Previous":
                                 importAddress.AddressType = AddressType.Previous;
                                 break;
-                            case "Businiess":
+                            case "Business":
                                 importAddress.AddressType = AddressType.Work;
                                 break;
                         }
