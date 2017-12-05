@@ -210,24 +210,32 @@ namespace Slingshot.Elexio.Utilities.Translators
                 var homePhone = row.Field<string>( "HomePhone" );
                 if ( homePhone.IsNotNullOrWhitespace() )
                 {
-                    person.PhoneNumbers.Add( new PersonPhone
+                    // since the phone number could have invalid information, all non digits will be removed
+                    if ( homePhone.AsNumeric().IsNotNullOrWhitespace() )
                     {
-                        PhoneNumber = homePhone,
-                        PersonId = person.Id,
-                        PhoneType = "Home"
-                    } );
+                        person.PhoneNumbers.Add( new PersonPhone
+                        {
+                            PhoneNumber = homePhone.AsNumeric(),
+                            PersonId = person.Id,
+                            PhoneType = "Home"
+                        } );
+                    }
                 }
 
                 // cell
                 var cellPhone = row.Field<string>( "MobilePhone" );
                 if ( cellPhone.IsNotNullOrWhitespace() )
                 {
-                    person.PhoneNumbers.Add( new PersonPhone
+                    // since the phone number could have invalid information, all non digits will be removed
+                    if( cellPhone.AsNumeric().IsNotNullOrWhitespace() )
                     {
-                        PhoneNumber = cellPhone,
-                        PersonId = person.Id,
-                        PhoneType = "Mobile"
-                    } );
+                        person.PhoneNumbers.Add( new PersonPhone
+                        {
+                            PhoneNumber = cellPhone.AsNumeric(),
+                            PersonId = person.Id,
+                            PhoneType = "Mobile"
+                        } );
+                    }
                 }
 
                 // household address
