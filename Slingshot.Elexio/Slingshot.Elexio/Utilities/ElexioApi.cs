@@ -22,6 +22,8 @@ namespace Slingshot.Elexio.Utilities
         private static SqlConnection _dbConnection;
         private static DateTime _modifiedSince;
 
+        #region Properties
+
         /// <summary>
         /// Gets or sets the error message.
         /// </summary>
@@ -34,10 +36,16 @@ namespace Slingshot.Elexio.Utilities
         /// Gets or sets the hostname.
         /// </summary>
         /// <value>
-        /// The domain.
+        /// The hostname.
         /// </value>
         public static string HostName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the database.
+        /// </summary>
+        /// <value>
+        /// The database.
+        /// </value>
         public static string Database { get; set; }
 
         /// <summary>
@@ -86,7 +94,15 @@ namespace Slingshot.Elexio.Utilities
         /// </value>
         public static bool IsConnected { get; private set; } = false;
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is using SQL authentication.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is using SQL authentication; otherwise, <c>false</c>.
+        /// </value>
         public static bool IsSQLAuthentication { get; set; } = false;
+
+        #endregion
 
         #region SQL Queries
 
