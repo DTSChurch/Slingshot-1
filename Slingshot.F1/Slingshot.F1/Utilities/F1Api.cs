@@ -509,7 +509,7 @@ namespace Slingshot.F1.Utilities
                                 // process all batches
                                 foreach ( var batchNode in batches.Elements() )
                                 {
-                                    var importBatch = F1Batch.Translate( batchNode );
+                                    var importBatch = F1FinancialBatch.Translate( batchNode );
 
                                     if ( importBatch != null )
                                     {

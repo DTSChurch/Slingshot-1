@@ -61,7 +61,7 @@
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\F1Api.cs" />
-    <Compile Include="Utilities\Translators\F1Batch.cs" />
+    <Compile Include="Utilities\Translators\F1FinancialBatch.cs" />
     <Compile Include="Utilities\Translators\F1FinancialAccount.cs" />
     <Compile Include="Utilities\Translators\F1FinancialPledge.cs" />
     <Compile Include="Utilities\Translators\F1FinancialTransaction.cs" />

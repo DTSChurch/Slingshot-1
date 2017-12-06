@@ -9,7 +9,7 @@ using Slingshot.Core.Model;
 
 namespace Slingshot.F1.Utilities.Translators
 {
-    public static class F1Batch
+    public static class F1FinancialBatch
     {
         public static FinancialBatch Translate( XElement inputBatch )
         {
