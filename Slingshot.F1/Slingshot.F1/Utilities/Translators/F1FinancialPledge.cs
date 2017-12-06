@@ -27,7 +27,8 @@ namespace Slingshot.F1.Utilities.Translators
             // F1 doesn't store a pledge frequency
             pledge.PledgeFrequency = PledgeFrequency.OneTime; // not sure if this is the best default
 
-            if ( inputPledge.Element( "goal" )?.Value != null )
+            var goal = inputPledge.Element( "goal" ).Value.AsDecimalOrNull();
+            if ( goal.HasValue && goal.Value > 0 )
             {
                 pledge.TotalAmount = inputPledge.Element( "goal" ).Value.AsDecimal();
             }
