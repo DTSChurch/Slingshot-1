@@ -24,7 +24,22 @@ namespace Slingshot.Elexio.Utilities.Translators
                 person.NickName = row.Field<string>( "NickName" );
                 person.MiddleName = row.Field<string>( "MiddleName" );
                 person.LastName = row.Field<string>( "LastName" );
-                person.Suffix = row.Field<string>( "Suffix" );
+
+                var suffix = row.Field<string>( "Suffix" );
+                switch ( suffix )
+                {
+                    case "v":
+                        person.Suffix = "V";
+                        break;
+                    case "mr":
+                        break;
+                    case "Jr":
+                        person.Suffix = "Jr.";
+                        break;
+                    case "Sr":
+                        person.Suffix = "Sr.";
+                        break;
+                }
 
                 // family
                 person.FamilyId = row.Field<int?>( "FamilyId" );
@@ -211,7 +226,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                 if ( homePhone.IsNotNullOrWhitespace() )
                 {
                     // since the phone number could have invalid information, all non digits will be removed
-                    if ( homePhone.AsNumeric().IsNotNullOrWhitespace() )
+                    if ( homePhone.AsNumeric().IsNotNullOrWhitespace() && homePhone.AsNumeric().Count() <= 20 )
                     {
                         person.PhoneNumbers.Add( new PersonPhone
                         {
@@ -227,7 +242,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                 if ( cellPhone.IsNotNullOrWhitespace() )
                 {
                     // since the phone number could have invalid information, all non digits will be removed
-                    if( cellPhone.AsNumeric().IsNotNullOrWhitespace() )
+                    if( cellPhone.AsNumeric().IsNotNullOrWhitespace() && cellPhone.AsNumeric().Count() <= 20 )
                     {
                         person.PhoneNumbers.Add( new PersonPhone
                         {
