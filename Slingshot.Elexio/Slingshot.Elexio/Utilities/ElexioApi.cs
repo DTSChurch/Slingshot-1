@@ -175,7 +175,8 @@ OUTER APPLY (
 	ORDER BY LFP.CodeValue
 ) HOH
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
-ORDER BY A.AddressID, C.ContactID
+    AND LS.[Description] != 'Inactivated by Mass Update' -- TODO: Remove since this is specific to Grace Church
+--ORDER BY A.AddressID, C.ContactID
 ";
 
         private static string SQL_PERSON_NOTES = $@"
@@ -231,27 +232,33 @@ SELECT
 	,C.DateUpdated AS [ModifiedDateTime]
 FROM tblContributions C
 INNER JOIN tblCodes CC ON CC.CodeID = C.GivingMethod
+INNER JOIN [qryLookupFunds] F ON F.CodeID = C.DesignatedFund
 WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
 ";
 
         private static string SQL_FINANCIAL_TRANSACTION_DETAILS = $@"
 SELECT 
-	-- Id
-	ContributionID AS [TransactionId]
-	,DesignatedFund AS [AccountId]
-	,dbo.ConvertAmount(Amount, AddressID, ContactID) AS [Amount]
-	,DateCreated AS [CreatedDateTime]
-	,DateUpdated AS [ModifiedDateTime]
-FROM [dbo].[tblContributions]
+	 -- Id
+	 C.ContributionID AS [TransactionId]
+	,F.CodeID AS [AccountId]
+	,dbo.ConvertAmount(C.Amount, C.AddressID, C.ContactID) AS [Amount]
+	,C.DateCreated AS [CreatedDateTime]
+	,C.DateUpdated AS [ModifiedDateTime]
+FROM [tblContributions] C
+INNER JOIN [qryLookupFunds] F ON F.CodeID = C.DesignatedFund
 WHERE DateUpdated >= { _modifiedSince.ToShortDateString() }
 ";
 
         private const string SQL_GROUP_TYPES = @"
-SELECT MinistryID AS [Id]
-	,[Name]
-FROM [dbo].[tblMinistries] M
-WHERE MinistryType = 0
-ORDER BY MinistryID
+SELECT 1 AS [Id], 'Small Groups' AS [Name]
+UNION
+SELECT 3 AS [Id], 'Ministry Teams' AS [Name]
+UNION
+SELECT 4 AS [Id], 'Classes/Seminars' AS [Name]
+UNION
+SELECT 5 AS [Id], 'Events' AS [Name]
+UNION
+SELECT 24 AS [Id], 'Services' AS [Name]
 ";
 
         private const string SQL_GROUPS = @"
@@ -269,13 +276,47 @@ SELECT DISTINCT
 	 I.[ContactID] AS [PersonId]
 	,I.[Activity] AS [GroupId]
 	,CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END AS [Role]
-FROM [c2737595_data].[dbo].[tblInvolvement] I
+FROM [tblInvolvement] I
 INNER JOIN tblMinistries M ON M.MinistryID = I.Activity AND M.MinistryType = I.ActivityType
 INNER JOIN tblContacts C ON C.ContactID = I.ContactID
 LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
-ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END
+ORDER BY I.Activity, I.ContactID
 ";
 
+        private const string SQL_ATTENDANCE_LOCATIONS = @"
+SELECT
+	[ID] AS [Id]
+	,'' AS [ParentLocationId]
+	,[Name]
+	,1 AS [IsActive]
+	,'' AS [LocationType]
+	,'' AS [Street1]
+	,'' AS [Street2]
+	,'' AS [City]
+	,'' AS [State]
+	,'' AS [Country]
+	,'' AS [Postal]
+	,'' AS [County]
+  FROM [tblEventRoomDefinitions]
+";
+
+        private static string SQL_ATTENDANCE = $@"
+SELECT
+	 EA.[AttendanceID] AS [AttendanceId]
+    ,EA.[ContactID] AS [PersonId]
+    ,EA.[EventID] AS [GroupId]
+    ,EA.[RoomID] AS [LocationId] -- Maybe LocationId
+    ,'' AS [ScheduleId]
+    ,'' AS [DeviceID]
+    ,CASE WHEN EA.[CheckInTime] IS NULL THEN EA.[Date] ELSE EA.[CheckInTime] END AS [StartDateTime] -- Substitute Date when CheckInTime is null
+    ,EA.[CheckOutTime] AS [EndDateTime] --
+    ,'' AS [Note]
+    ,'' AS [CampusId]
+FROM [tblEventAttendance] EA
+INNER JOIN qryLookupStatusForEvents SFE ON SFE.CodeID = EA.Status
+WHERE SFE.[Description] = 'Present'
+    AND EA.CheckInTime >= { _modifiedSince.ToShortDateString() }
+";
         #endregion
 
         /// <summary>
@@ -392,7 +433,7 @@ ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknow
         /// </summary>
         /// <param name="modifiedSince">The modified since.</param>
         /// <param name="peoplePerPage">The people per page.</param>
-        public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 500 )
+        public static void ExportIndividuals( DateTime modifiedSince )
         {
             _modifiedSince = modifiedSince;
 
@@ -568,24 +609,36 @@ ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknow
         /// <summary>
         /// Exports the attendance.
         /// </summary>
-        //public static void ExportAttendance( DateTime modifiedSince )
-        //{
-        //}
+        public static void ExportAttendance( DateTime modifiedSince )
+        {
+            // export attendance locations
+            using ( var dtLocations = GetTableData( SQL_ATTENDANCE_LOCATIONS ) )
+            {
+                foreach ( DataRow row in dtLocations.Rows )
+                {
+                    var importLocation = ElexioLocation.Translate( row );
 
+                    if ( importLocation != null )
+                    {
+                        ImportPackage.WriteToPackage( importLocation );
+                    }
+                }
+            }
 
-        //private static void GetAttendance( DateTime modifiedSince, List<EventDetail> eventDetails )
-        //{
-        //}
+            // export attendance
+            using ( var dtAttendance = GetTableData( SQL_ATTENDANCE ) )
+            {
+                foreach ( DataRow row in dtAttendance.Rows )
+                {
+                    var importAttendance = ElexioAttendance.Translate( row );
 
-        /// <summary>
-        /// Gets the attendance events.
-        /// </summary>
-        /// <param name="modifiedSince">The modified since.</param>
-        /// <param name="itemsPerPage">The items per page.</param>
-        /// <returns></returns>
-        //private static List<EventDetail> GetAttendanceEvents( DateTime modifiedSince, int itemsPerPage )
-        //{
-        //}
+                    if ( importAttendance != null )
+                    {
+                        ImportPackage.WriteToPackage( importAttendance );
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Writes the group types.
@@ -602,6 +655,14 @@ ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknow
                     Id = groupType.Id,
                     Name = groupType.Name
                 } );
+
+                // create a parent group for each group type
+                ImportPackage.WriteToPackage( new Group()
+                {
+                    Id = 2099999000 + groupType.Id,
+                    Name = groupType.Name,
+                    GroupTypeId = groupType.Id
+                } );
             }
         }
 
@@ -617,6 +678,7 @@ ORDER BY I.Activity, I.ContactID, CASE WHEN L.[Description] IS NULL THEN 'Unknow
                 DataSet dataSet = new DataSet();
                 DataTable dataTable = new DataTable();
                 SqlCommand dbCommand = new SqlCommand( command, _dbConnection );
+                dbCommand.CommandTimeout = 180;
                 SqlDataAdapter adapter = new SqlDataAdapter();
 
                 adapter.SelectCommand = dbCommand;

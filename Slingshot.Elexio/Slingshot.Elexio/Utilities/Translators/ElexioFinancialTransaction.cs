@@ -29,7 +29,16 @@ namespace Slingshot.Elexio.Utilities.Translators
             }
 
             financialTransaction.AuthorizedPersonId = row.Field<int>( "AuthorizedPersonId" );
-            financialTransaction.TransactionDate = row.Field<DateTime>( "TransactionDate" );
+
+            var transactionDate = row.Field<DateTime?>( "TransactionDate" );
+            if ( transactionDate.HasValue )
+            {
+                financialTransaction.TransactionDate = transactionDate;
+            }
+            else
+            {
+                financialTransaction.TransactionDate = DateTime.Parse( "01/01/1901" );
+            }
 
             financialTransaction.Summary = row.Field<string>( "Summary" );
 

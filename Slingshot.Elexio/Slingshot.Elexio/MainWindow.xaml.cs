@@ -115,19 +115,18 @@ namespace Slingshot.Elexio
                 }
             }
 
-            //// export attendance 
-            //if ( exportSettings.ExportAttendance )
-            //{
-            //    exportWorker.ReportProgress( 75, $"Exporting Attendance..." );
+            // export attendance 
+            if ( exportSettings.ExportAttendance )
+            {
+                exportWorker.ReportProgress( 75, $"Exporting Attendance..." );
 
-            //    ElexioApi.ExportAttendance( exportSettings.ModifiedSince );
+                ElexioApi.ExportAttendance( exportSettings.ModifiedSince );
 
-
-            //    if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
-            //    {
-            //        exportWorker.ReportProgress( 75, $"Error exporting attendance: {ElexioApi.ErrorMessage}" );
-            //    }
-            //}
+                if ( ElexioApi.ErrorMessage.IsNotNullOrWhitespace() )
+                {
+                    exportWorker.ReportProgress( 75, $"Error exporting attendance: {ElexioApi.ErrorMessage}" );
+                }
+            }
 
             // finalize the package
             ImportPackage.FinalizePackage( "elexio-export.slingshot" );
