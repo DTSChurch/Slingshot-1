@@ -130,7 +130,7 @@ SELECT C.[ContactID] AS [Id]
 	,HOH.Campus
 	,HOH.CampusId
 	-- Grade
-	-- Give Individually
+	,C.TrackContributionsIndividually AS [GiveIndividually]
 	
 	-- Phones
 	,P.Phone AS [HomePhone]
@@ -179,6 +179,18 @@ WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
 --ORDER BY A.AddressID, C.ContactID
 ";
 
+        private static string SQL_PEOPLE_PHOTOS = $@"
+SELECT
+        C.ContactID AS [Id]
+    ,I.ImageBinary AS [PhotoData]
+FROM [dbo].[tblContacts] C
+INNER JOIN tblPhotos P ON 
+    C.AddressID IS NULL OR P.AddressID = C.AddressID AND
+    C.ContactID IS NULL OR P.ContactID = C.ContactID
+INNER JOIN tblImages I ON I.UniqueID = P.[FileName]
+WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
+";
+
         private static string SQL_PERSON_NOTES = $@"
 SELECT
 	 CN.[ContactNotesID] AS [Id]
@@ -199,6 +211,26 @@ SELECT [CodeID] AS [Id]
   ,[Description] AS [Name]
 FROM [qryLookupFunds]
 ORDER BY SortOrder
+";
+
+        private const string SQL_FINANCIAL_PLEDGES = @"
+SELECT
+	 P.PledgeID AS [Id]
+	,CASE WHEN ContactID IS NULL THEN (SELECT TOP 1 CC.ContactID 
+										FROM tblContacts CC
+										LEFT OUTER JOIN qryLookupFamilyPositions LFP ON LFP.CodeID = CC.FamilyPosition
+										WHERE CC.AddressID = P.AddressID 
+										ORDER BY LFP.CodeValue) 
+		ELSE ContactID 
+	 END AS [PersonId]
+	,P.[Fund] AS [AccountId]
+	,P.StartDate
+	,P.EndDate
+	,P.Interval AS [PledgeFrequency]
+	,P.Amount AS [TotalAmount]
+	,P.DateCreated AS [CreatedDateTime]
+	,P.DateUpdated AS [ModifiedDateTime]
+FROM tblPledges P
 ";
 
         private const string SQL_FINANCIAL_BATCHES = @"
@@ -223,30 +255,19 @@ SELECT
 		  ELSE ContactID 
 	 END AS [AuthorizedPersonId]  -- if transaction is tied to an address, choose the head of household as the giver
 	,C.DateGiven AS [TransactionDate]
-	--,'' AS [TransactionType] 
-	--,'' AS TransactionSource
+	,'' AS [TransactionType] 
+	,'' AS TransactionSource
 	,CC.[Description] AS [CurrencyType]
 	,C.Comment AS [Summary]
-	--,'' AS TransactionCode
+	,'' AS TransactionCode
 	,C.DateCreated AS [CreatedDateTime]
 	,C.DateUpdated AS [ModifiedDateTime]
+	,F.CodeID AS [AccountId]
+    ,dbo.ConvertAmount(C.Amount, C.AddressID, C.ContactID) AS [Amount]
 FROM tblContributions C
 INNER JOIN tblCodes CC ON CC.CodeID = C.GivingMethod
 INNER JOIN [qryLookupFunds] F ON F.CodeID = C.DesignatedFund
 WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
-";
-
-        private static string SQL_FINANCIAL_TRANSACTION_DETAILS = $@"
-SELECT 
-	 -- Id
-	 C.ContributionID AS [TransactionId]
-	,F.CodeID AS [AccountId]
-	,dbo.ConvertAmount(C.Amount, C.AddressID, C.ContactID) AS [Amount]
-	,C.DateCreated AS [CreatedDateTime]
-	,C.DateUpdated AS [ModifiedDateTime]
-FROM [tblContributions] C
-INNER JOIN [qryLookupFunds] F ON F.CodeID = C.DesignatedFund
-WHERE DateUpdated >= { _modifiedSince.ToShortDateString() }
 ";
 
         private const string SQL_GROUP_TYPES = @"
@@ -255,10 +276,10 @@ UNION
 SELECT 3 AS [Id], 'Ministry Teams' AS [Name]
 UNION
 SELECT 4 AS [Id], 'Classes/Seminars' AS [Name]
-UNION
-SELECT 5 AS [Id], 'Events' AS [Name]
-UNION
-SELECT 24 AS [Id], 'Services' AS [Name]
+--UNION
+--SELECT 5 AS [Id], 'Events' AS [Name]
+--UNION
+--SELECT 24 AS [Id], 'Services' AS [Name]
 ";
 
         private const string SQL_GROUPS = @"
@@ -267,7 +288,7 @@ SELECT
 	,[Name]
 	,[MinistryType] AS [GroupTypeId]
 FROM tblMinistries M
-WHERE MinistryType != 0
+WHERE MinistryType IN (1,3,4)
 ORDER BY MinistryID
 ";
 
@@ -300,6 +321,13 @@ SELECT
   FROM [tblEventRoomDefinitions]
 ";
 
+        private const string SQL_ATTENDANCE_SCHEDULES = @"
+SELECT 
+     [MinistryID] AS [Id]
+    ,[Name]
+FROM [qryLookupServices]
+";
+
         private static string SQL_ATTENDANCE = $@"
 SELECT
 	 EA.[AttendanceID] AS [AttendanceId]
@@ -307,14 +335,15 @@ SELECT
     ,EA.[EventID] AS [GroupId]
     ,EA.[RoomID] AS [LocationId] -- Maybe LocationId
     ,'' AS [ScheduleId]
-    ,'' AS [DeviceID]
+    ,'' AS [DeviceId]
     ,CASE WHEN EA.[CheckInTime] IS NULL THEN EA.[Date] ELSE EA.[CheckInTime] END AS [StartDateTime] -- Substitute Date when CheckInTime is null
     ,EA.[CheckOutTime] AS [EndDateTime] --
     ,'' AS [Note]
     ,'' AS [CampusId]
+	,S.MinistryID AS [ScheduleMinistryId]
 FROM [tblEventAttendance] EA
-INNER JOIN qryLookupStatusForEvents SFE ON SFE.CodeID = EA.Status
-WHERE SFE.[Description] = 'Present'
+INNER JOIN [qryLookupStatusForEvents] SFE ON SFE.CodeID = EA.Status
+LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
     AND EA.CheckInTime >= { _modifiedSince.ToShortDateString() }
 ";
         #endregion
@@ -454,6 +483,22 @@ WHERE SFE.[Description] = 'Present'
                 }
             }
 
+            // export person photos
+            //using ( var dtPeoplePhotos = GetTableData( SQL_PEOPLE_PHOTOS ) )
+            //{
+            //    foreach ( DataRow row in dtPeoplePhotos.Rows )
+            //    {
+            //        // save person image
+            //        var imageData = row.Field<byte[]>( "PhotoData" );
+            //        if ( imageData != null )
+            //        {
+            //            var personId = row.Field<int>( "Id" );
+            //            var path = Path.Combine( ImportPackage.ImageDirectory, "Person_" + personId + ".jpg" );
+            //            File.WriteAllBytes( path, imageData );
+            //        }
+            //    }
+            //}
+
             // export person notes
             using ( var dtPersonNotes = GetTableData( SQL_PERSON_NOTES ) )
             {
@@ -507,6 +552,20 @@ WHERE SFE.[Description] = 'Present'
                 StartDate = DateTime.Now
             } );
 
+            // export financial pledges
+            using ( var dtPledges = GetTableData( SQL_FINANCIAL_PLEDGES ) )
+            {
+                foreach ( DataRow row in dtPledges.Rows )
+                {
+                    var importPledge = ElexioFinancialPledge.Translate( row );
+
+                    if ( importPledge != null )
+                    {
+                        ImportPackage.WriteToPackage( importPledge );
+                    }
+                }
+            }
+
 
             // export financial batches
             using ( var dtBatches = GetTableData( SQL_FINANCIAL_BATCHES ) )
@@ -522,30 +581,25 @@ WHERE SFE.[Description] = 'Present'
                 }
             }
 
-            // export financial transactions
+            // export financial transactions & details
             using ( var dtTransactions = GetTableData( SQL_FINANCIAL_TRANSACTIONS ) )
             {
                 foreach ( DataRow row in dtTransactions.Rows )
                 {
-                    var importTransactions = ElexioFinancialTransaction.Translate( row );
+                    // transaction
+                    var importTransaction = ElexioFinancialTransaction.Translate( row );
 
-                    if ( importTransactions != null )
+                    if ( importTransaction != null )
                     {
-                        ImportPackage.WriteToPackage( importTransactions );
+                        ImportPackage.WriteToPackage( importTransaction );
                     }
-                }
-            }
 
-            // export financial transaction details
-            using ( var dtTransactionDetails = GetTableData( SQL_FINANCIAL_TRANSACTION_DETAILS ) )
-            {
-                foreach ( DataRow row in dtTransactionDetails.Rows )
-                {
-                    var importTransactionDetails = ElexioFinancialTransactionDetail.Translate( row );
+                    // detail
+                    var importTransactionDetail = ElexioFinancialTransactionDetail.Translate( row );
 
-                    if ( importTransactionDetails != null )
+                    if ( importTransactionDetail != null )
                     {
-                        ImportPackage.WriteToPackage( importTransactionDetails );
+                        ImportPackage.WriteToPackage( importTransactionDetail );
                     }
                 }
             }
@@ -625,6 +679,20 @@ WHERE SFE.[Description] = 'Present'
                 }
             }
 
+            // export attendance schedules
+            using ( var dtSchedules = GetTableData( SQL_ATTENDANCE_SCHEDULES ) )
+            {
+                foreach ( DataRow row in dtSchedules.Rows )
+                {
+                    var importSchedule = ElexioSchedule.Translate( row );
+
+                    if ( importSchedule != null )
+                    {
+                        ImportPackage.WriteToPackage( importSchedule );
+                    }
+                }
+            }
+
             // export attendance
             using ( var dtAttendance = GetTableData( SQL_ATTENDANCE ) )
             {
@@ -678,7 +746,7 @@ WHERE SFE.[Description] = 'Present'
                 DataSet dataSet = new DataSet();
                 DataTable dataTable = new DataTable();
                 SqlCommand dbCommand = new SqlCommand( command, _dbConnection );
-                dbCommand.CommandTimeout = 180;
+                dbCommand.CommandTimeout = 300;
                 SqlDataAdapter adapter = new SqlDataAdapter();
 
                 adapter.SelectCommand = dbCommand;

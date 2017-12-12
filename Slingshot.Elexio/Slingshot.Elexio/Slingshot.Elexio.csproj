@@ -58,6 +58,7 @@
     <Compile Include="Utilities\Translators\ElexioAttendance.cs" />
     <Compile Include="Utilities\Translators\ElexioFinancialAccount.cs" />
     <Compile Include="Utilities\Translators\ElexioFinancialBatch.cs" />
+    <Compile Include="Utilities\Translators\ElexioFinancialPledge.cs" />
     <Compile Include="Utilities\Translators\ElexioFinancialTransaction.cs" />
     <Compile Include="Utilities\Translators\ElexioFinancialTransactionDetail.cs" />
     <Compile Include="Utilities\Translators\ElexioGroup.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Utilities\Translators\ElexioLocation.cs" />
     <Compile Include="Utilities\Translators\ElexioPerson.cs" />
     <Compile Include="Utilities\Translators\ElexioPersonNote.cs" />
+    <Compile Include="Utilities\Translators\ElexioSchedule.cs" />
     <Page Include="Login.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

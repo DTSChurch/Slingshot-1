@@ -150,6 +150,13 @@ namespace Slingshot.Elexio.Utilities.Translators
                 person.Birthdate = row.Field<DateTime?>( "Birthdate" );
                 person.AnniversaryDate = row.Field<DateTime?>( "AnniversaryDate" );
 
+                // gives individually
+                var givesIndividually = row.Field<bool?>( "GiveIndividually" );
+                if ( givesIndividually.HasValue )
+                {
+                    person.GiveIndividually = givesIndividually;
+                }
+
                 // campus?
 
 

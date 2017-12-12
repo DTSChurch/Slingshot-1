@@ -61,7 +61,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                     break;
                 default:
                     financialTransaction.CurrencyType = CurrencyType.Unknown;
-                    financialTransaction.Summary += ( "Currency Type: " + currencyType );
+                    financialTransaction.Summary += ( " Currency Type: " + currencyType );
                     break;
             }
 

@@ -15,8 +15,9 @@ namespace Slingshot.Elexio.Utilities.Translators
         {
             var financialTransactionDetail = new FinancialTransactionDetail();
 
-            financialTransactionDetail.TransactionId = row.Field<int>( "TransactionId" );
+            financialTransactionDetail.TransactionId = row.Field<int>( "Id" );
             financialTransactionDetail.AccountId = row.Field<int>( "AccountId" );
+            financialTransactionDetail.Amount = row.Field<decimal>( "Amount" );
 
             financialTransactionDetail.CreatedDateTime = row.Field<DateTime?>( "CreatedDateTime" );
             financialTransactionDetail.ModifiedDateTime = row.Field<DateTime?>( "ModifiedDateTime" );
