@@ -321,13 +321,6 @@ SELECT
   FROM [tblEventRoomDefinitions]
 ";
 
-        private const string SQL_ATTENDANCE_SCHEDULES = @"
-SELECT 
-     [MinistryID] AS [Id]
-    ,[Name]
-FROM [qryLookupServices]
-";
-
         private static string SQL_ATTENDANCE = $@"
 SELECT
 	 EA.[AttendanceID] AS [AttendanceId]
@@ -675,20 +668,6 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                     if ( importLocation != null )
                     {
                         ImportPackage.WriteToPackage( importLocation );
-                    }
-                }
-            }
-
-            // export attendance schedules
-            using ( var dtSchedules = GetTableData( SQL_ATTENDANCE_SCHEDULES ) )
-            {
-                foreach ( DataRow row in dtSchedules.Rows )
-                {
-                    var importSchedule = ElexioSchedule.Translate( row );
-
-                    if ( importSchedule != null )
-                    {
-                        ImportPackage.WriteToPackage( importSchedule );
                     }
                 }
             }
