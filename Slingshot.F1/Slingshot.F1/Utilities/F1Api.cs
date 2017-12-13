@@ -359,7 +359,7 @@ namespace Slingshot.F1.Utilities
 
                 int loopCounter = 0;
 
-                // process all accounts
+                // process accounts
                 foreach ( var accountNode in accounts.Elements() )
                 {
                     var importAccount = F1FinancialAccount.Translate( accountNode );
@@ -371,7 +371,7 @@ namespace Slingshot.F1.Utilities
 
                     AccountIds.Add( importAccount.Id );
 
-                    // process sub accounts linked to account
+                    // process sub accounts of this account
                     _client.Authenticator = OAuth1Authenticator.ForProtectedResource(ApiConsumerKey, ApiConsumerSecret, OAuthToken, OAuthSecret);
                     _request = new RestRequest(API_ACCOUNTS + "/" + importAccount.Id.ToString() + "/subFunds" , Method.GET);
                     _request.AddHeader("content-type", "application/xml");
@@ -721,7 +721,7 @@ namespace Slingshot.F1.Utilities
                     if ( groups.Elements().Any() )
                     {
                         // since we don't have a group heirarchy to work with, add a parent
-                        //  group for each group type for organization
+                        //  group for each group type for organizational purposes
                         int parentGroupId = 99 + groups.Elements().FirstOrDefault().Element( "groupType" ).Attribute( "id" ).Value.AsInteger();
 
                         ImportPackage.WriteToPackage( new Group()
@@ -839,11 +839,13 @@ namespace Slingshot.F1.Utilities
 
                 if ( requirements != null )
                 {
+                    // create 2 Rock attributes for every one F1 requirement (status & date)
                     foreach ( var sourceRequirement in requirements.Elements() )
                     {
                         string requirementName = sourceRequirement.Element( "name" ).Value;
                         string requirementId = sourceRequirement.Attribute( "id" ).Value;
 
+                        // status attribute
                         var requirementStatus = new PersonAttribute()
                         {
                             Name = requirementName + " Status",
@@ -855,6 +857,7 @@ namespace Slingshot.F1.Utilities
                         ImportPackage.WriteToPackage( requirementStatus );
                         attributes.Add( requirementStatus );
 
+                        // date attribute
                         var requirementDate = new PersonAttribute()
                         {
                             Name = requirementName + " Date",
@@ -865,9 +868,6 @@ namespace Slingshot.F1.Utilities
 
                         ImportPackage.WriteToPackage( requirementDate );
                         attributes.Add( requirementDate );
-
-                        //Console.WriteLine(requirementName + " " + requirementId);
-                        //Console.WriteLine(sourceRequirement.ToString());
                     }
                 }
             }
@@ -896,7 +896,7 @@ namespace Slingshot.F1.Utilities
                 {
                     foreach ( var sourceAttributeGroup in attributeGroups.Elements() )
                     {
-                        // create 3 Rock attributes for every one F1 attribute 
+                        // create 3 Rock attributes for every one F1 attribute (comment, start date & end date)
                         foreach ( var attribute in sourceAttributeGroup.Elements( "attribute" ) )
                         {
                             string attributeGroup = sourceAttributeGroup.Element( "name" ).Value;
@@ -1054,7 +1054,7 @@ namespace Slingshot.F1.Utilities
                                 if ( personNode.Attribute( "id" ) != null && personNode.Attribute( "id" ).Value.AsIntegerOrNull().HasValue )
                                 {
                                     // If a person is updated during an export, the person could be returned 
-                                    //  twice by the API.  
+                                    //  twice by the API.  A check is done to ensure the person doesn't get imported twice.
                                     if ( !personIds.Contains( personNode.Attribute( "id" ).Value.AsInteger() ) )
                                     {
                                         var householdMemberType = personNode.Element( "householdMemberType" ).Attribute( "id" ).Value.AsIntegerOrNull();
@@ -1122,6 +1122,11 @@ namespace Slingshot.F1.Utilities
         }
     }
 
+    /// <summary>
+    /// The Family Member.
+    /// 
+    /// Used to determine head of household and household campus.
+    /// </summary>
     public class FamilyMember
     {
         public int HouseholdId { get; set; }

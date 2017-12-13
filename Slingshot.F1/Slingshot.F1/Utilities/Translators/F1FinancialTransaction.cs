@@ -40,12 +40,7 @@ namespace Slingshot.F1.Utilities.Translators
                         .OrderBy( f => f.FamilyRoleId )
                         .Select( f => f.PersonId )
                         .FirstOrDefault();
-            }
-            else
-            {
-                // should not happen
-            }
-            
+            }            
 
             var currencyType = inputTransaction.Element( "contributionType" ).Element( "name" ).Value;
 

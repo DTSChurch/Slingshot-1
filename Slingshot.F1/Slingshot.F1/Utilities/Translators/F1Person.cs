@@ -162,7 +162,6 @@ namespace Slingshot.F1.Utilities.Translators
                 var status = inputPerson.Element( "status" ).Element( "name" )?.Value;
                 person.ConnectionStatus = status;
 
-
                 // record status
                 if ( status == "Inactive Member" )
                 {
@@ -219,15 +218,14 @@ namespace Slingshot.F1.Utilities.Translators
                             person.FamilyId = familyId;
                         }
                     }
-                    
                 }
 
                 // campus
                 Campus campus = new Campus();
                 person.Campus = campus;
 
-                // Since family members can have different campuses and Slingshot will set the family campus to the first family
-                // member it sees, each family member will be assigned the head of household's campus.
+                // Family members of the same family can have different campuses in F1 and Slingshot will set the family campus to the first family
+                // member it see. To be consistent, we'll use the head of household's campus for the whole family.
                 var headOfHousehold = familyMembers
                         .Where( h => h.HouseholdId == person.FamilyId )
                         .OrderBy( h => h.FamilyRoleId )
@@ -254,7 +252,7 @@ namespace Slingshot.F1.Utilities.Translators
                 {
                     if ( personAttributes.Any() )
                     {
-                        // Add the comment (if not empty) by matching with the KeyName that was Arbitrarily created in F1Api class.  
+                        // Add the attribute value for comment (if not empty) 
                         var commentAttributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters() + "Comment";
                         string comment = attribute.Element("comment").Value;
 
@@ -286,7 +284,7 @@ namespace Slingshot.F1.Utilities.Translators
                             }
                         }
 
-                        // Add the date (if not null) by matching with the KeyName that was Arbitrarily created in F1Api class. 
+                        // Add the attribute value for start date (if not empty) 
                         var startDateAttributeKey = attribute.Element("attributeGroup").Element("attribute").Element("name").Value.RemoveSpaces().RemoveSpecialCharacters() + "StartDate";
                         DateTime? startDate = attribute.Element("startDate")?.Value.AsDateTime();
 
@@ -305,7 +303,7 @@ namespace Slingshot.F1.Utilities.Translators
                             }
                         }
 
-                        // Add the date (if not null) by matching with the KeyName that was Arbitrarily created in F1Api class. 
+                        // Add the attribute value for end date (if not empty) 
                         var endDateAttributeKey = attribute.Element( "attributeGroup" ).Element( "attribute" ).Element( "name" ).Value.RemoveSpaces().RemoveSpecialCharacters() + "EndDate";
                         DateTime? endDate = attribute.Element( "endDate" )?.Value.AsDateTime();
 
@@ -327,12 +325,13 @@ namespace Slingshot.F1.Utilities.Translators
                     }
                 }
 
-                // person requirements.  Validates the person attributes with what was found in F1.
+                // person requirements. 
                 var requirements = inputPerson.Element( "peopleRequirements" );
                 foreach ( var requirement in requirements.Elements() )
                 {
                     string requirementId = requirement.Element( "requirement" ).Attribute( "id" ).Value;
 
+                    // Add the attribute value for status (if not empty) 
                     var requirementStatus = requirement.Element( "requirementStatus" ).Element( "name" ).Value;
                     var requirementStatusKey = requirementId + "_" + requirement.Element( "requirement" ).Element( "name" ).Value
                                                     .RemoveSpaces().RemoveSpecialCharacters() + "Status";
@@ -352,6 +351,7 @@ namespace Slingshot.F1.Utilities.Translators
                         }
                     }
 
+                    // Add the attribute value for date (if not empty) 
                     DateTime? requirementDate = requirement.Element( "requirementDate" ).Value.AsDateTime();
                     var requirementDateKey = requirementId + "_" + requirement.Element( "requirement" ).Element( "name" ).Value
                                                     .RemoveSpaces().RemoveSpecialCharacters() + "Date";
