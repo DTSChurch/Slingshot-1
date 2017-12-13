@@ -255,11 +255,8 @@ SELECT
 		  ELSE ContactID 
 	 END AS [AuthorizedPersonId]  -- if transaction is tied to an address, choose the head of household as the giver
 	,C.DateGiven AS [TransactionDate]
-	,'' AS [TransactionType] 
-	,'' AS TransactionSource
-	,CC.[Description] AS [CurrencyType]
+	,CC.[Description] AS [GivingMethod]
 	,C.Comment AS [Summary]
-	,'' AS TransactionCode
 	,C.DateCreated AS [CreatedDateTime]
 	,C.DateUpdated AS [ModifiedDateTime]
 	,F.CodeID AS [AccountId]

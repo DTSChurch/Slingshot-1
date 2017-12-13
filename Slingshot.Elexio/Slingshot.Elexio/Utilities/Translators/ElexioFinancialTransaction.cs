@@ -44,24 +44,56 @@ namespace Slingshot.Elexio.Utilities.Translators
 
             financialTransaction.TransactionType = TransactionType.Contribution;
 
-            var currencyType = row.Field<string>( "CurrencyType" );
-            switch ( currencyType )
+            var givingMethod = row.Field<string>( "GivingMethod" );
+            switch ( givingMethod )
             {
+                // built-in Elexio giving methods
+                case "<Unknown>":
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
+                    break;
+                case "Online-Credit Card":
+                    financialTransaction.CurrencyType = CurrencyType.CreditCard;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    break;
+                case "Online-eCheck":
+                    financialTransaction.CurrencyType = CurrencyType.Check;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    break;
+                case "Online-Reversal":
+                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    break;
+                case "Fund Adjustment":
+                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    break;
+                case "SMS Donation":
+                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    break;
+
+                // other common methods
+                case "Unknown":
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
+                    break;
                 case "Check":
                     financialTransaction.CurrencyType = CurrencyType.Check;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
                     break;
                 case "Cash":
                     financialTransaction.CurrencyType = CurrencyType.Cash;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
                     break;
                 case "Credit Card":
                     financialTransaction.CurrencyType = CurrencyType.CreditCard;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "Automatic Deposit":
                     financialTransaction.CurrencyType = CurrencyType.ACH;
                     break;
                 default:
                     financialTransaction.CurrencyType = CurrencyType.Unknown;
-                    financialTransaction.Summary += ( " Currency Type: " + currencyType );
+                    financialTransaction.Summary += ( " Giving Method: " + givingMethod );
                     break;
             }
 
