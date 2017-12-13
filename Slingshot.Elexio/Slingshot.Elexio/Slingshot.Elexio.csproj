@@ -66,7 +66,6 @@
     <Compile Include="Utilities\Translators\ElexioLocation.cs" />
     <Compile Include="Utilities\Translators\ElexioPerson.cs" />
     <Compile Include="Utilities\Translators\ElexioPersonNote.cs" />
-    <Compile Include="Utilities\Translators\ElexioSchedule.cs" />
     <Page Include="Login.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

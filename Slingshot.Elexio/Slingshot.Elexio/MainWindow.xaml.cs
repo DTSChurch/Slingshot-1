@@ -184,9 +184,12 @@ namespace Slingshot.Elexio
             };
 
             // configure group types to export
-            foreach ( var selectedItem in GroupTypesCheckboxItems.Where( i => i.Checked ) )
+            if ( cbGroups.IsChecked.Value == true )
             {
-                exportSettings.ExportGroupTypes.Add( selectedItem.Id );
+                foreach ( var selectedItem in GroupTypesCheckboxItems.Where( i => i.Checked ) )
+                {
+                    exportSettings.ExportGroupTypes.Add( selectedItem.Id );
+                }
             }
 
             exportWorker.RunWorkerAsync( exportSettings );
