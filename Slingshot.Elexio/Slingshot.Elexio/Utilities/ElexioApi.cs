@@ -179,19 +179,39 @@ WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
 --ORDER BY A.AddressID, C.ContactID
 ";
 
-        private static string SQL_PEOPLE_PHOTOS = $@"
+        private static string SQL_PEOPLE_PHOTOS_COUNT = $@"
 SELECT
-        C.ContactID AS [Id]
-    ,I.ImageBinary AS [PhotoData]
+    COUNT(*) AS [Count]
 FROM [dbo].[tblContacts] C
 INNER JOIN tblPhotos P ON 
-    C.AddressID IS NULL OR P.AddressID = C.AddressID AND
-    C.ContactID IS NULL OR P.ContactID = C.ContactID
+	C.AddressID IS NULL OR P.AddressID = C.AddressID AND
+	C.ContactID IS NULL OR P.ContactID = C.ContactID
 INNER JOIN tblImages I ON I.UniqueID = P.[FileName]
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
 ";
 
-        private static string SQL_PERSON_NOTES = $@"
+        private static string SQL_PEOPLE_PHOTOS = $@"
+WITH CTEImages AS (
+	SELECT
+		 C.ContactID AS [Id]
+		,I.ImageBinary AS [ImageData]
+		,ROW_NUMBER() OVER (ORDER BY C.ContactID) AS RowNumber
+	FROM [dbo].[tblContacts] C
+	INNER JOIN tblPhotos P ON 
+		C.AddressID IS NULL OR P.AddressID = C.AddressID AND
+		C.ContactID IS NULL OR P.ContactID = C.ContactID
+	INNER JOIN tblImages I ON I.UniqueID = P.[FileName]
+	WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
+)
+
+SELECT 
+	 [Id]
+	,[ImageData]
+FROM CTEImages
+WHERE RowNumber BETWEEN {{0}} AND {{1}}
+";
+
+        private static string SQL_PEOPLE_NOTES = $@"
 SELECT
 	 CN.[ContactNotesID] AS [Id]
 	,CN.[ContactID] AS [PersonId]
@@ -265,6 +285,32 @@ FROM tblContributions C
 INNER JOIN tblCodes CC ON CC.CodeID = C.GivingMethod
 INNER JOIN [qryLookupFunds] F ON F.CodeID = C.DesignatedFund
 WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
+";
+
+        private static string SQL_FINANCIAL_TRANSACTIONS_IMAGES_COUNT = $@"
+SELECT 
+	COUNT(*) AS [Count]
+FROM tblContributions C
+INNER JOIN tblImages I ON I.UniqueID = C.ImageID
+WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
+";
+
+        private static string SQL_FINANCIAL_TRANSACTIONS_IMAGES = $@"
+WITH CTEImages AS (
+	SELECT 
+		C.ContributionID AS [Id]
+		,I.ImageBinary AS [ImageData]
+		,ROW_NUMBER() OVER (ORDER BY ContributionID) AS RowNumber
+	FROM tblContributions C
+	INNER JOIN tblImages I ON I.UniqueID = C.ImageID
+    WHERE C.DateUpdated >= { _modifiedSince.ToShortDateString() }
+)
+
+SELECT 
+	 [Id]
+	,[ImageData]
+FROM CTEImages
+WHERE RowNumber BETWEEN {{0}} AND {{1}}
 ";
 
         private const string SQL_GROUP_TYPES = @"
@@ -474,23 +520,44 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
             }
 
             // export person photos
-            //using ( var dtPeoplePhotos = GetTableData( SQL_PEOPLE_PHOTOS ) )
-            //{
-            //    foreach ( DataRow row in dtPeoplePhotos.Rows )
-            //    {
-            //        // save person image
-            //        var imageData = row.Field<byte[]>( "PhotoData" );
-            //        if ( imageData != null )
-            //        {
-            //            var personId = row.Field<int>( "Id" );
-            //            var path = Path.Combine( ImportPackage.ImageDirectory, "Person_" + personId + ".jpg" );
-            //            File.WriteAllBytes( path, imageData );
-            //        }
-            //    }
-            //}
+            using ( var dtPeopleImagesCount = GetTableData( SQL_PEOPLE_PHOTOS_COUNT ) )
+            {
+                if ( dtPeopleImagesCount != null )
+                {
+                    int counter = 0;
+                    int rowsPerPage = 100;
+                    bool moreImages = true;
+                    var imageCount = dtPeopleImagesCount.Rows[0].Field<int>( "Count" );
+
+                    while ( moreImages )
+                    {
+                        using ( var dtImages = GetTableData( String.Format( SQL_PEOPLE_PHOTOS, counter, counter + rowsPerPage ) ) )
+                        {
+                            foreach ( DataRow row in dtImages.Rows )
+                            {
+                                // save image
+                                var imageData = row.Field<byte[]>( "ImageData" );
+                                if ( imageData != null )
+                                {
+                                    var id = row.Field<int>( "Id" );
+                                    var path = Path.Combine( ImportPackage.ImageDirectory, "Person_" + id + ".jpg" );
+                                    File.WriteAllBytes( path, imageData );
+                                }
+                            }
+
+                            counter += rowsPerPage;
+
+                            if ( counter > imageCount )
+                            {
+                                moreImages = false;
+                            }
+                        }
+                    }
+                }
+            }
 
             // export person notes
-            using ( var dtPersonNotes = GetTableData( SQL_PERSON_NOTES ) )
+            using ( var dtPersonNotes = GetTableData( SQL_PEOPLE_NOTES ) )
             {
                 foreach ( DataRow row in dtPersonNotes.Rows )
                 {
@@ -590,6 +657,43 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                     if ( importTransactionDetail != null )
                     {
                         ImportPackage.WriteToPackage( importTransactionDetail );
+                    }
+                }
+            }
+
+            // export check images
+            using ( var dtCheckImagesCount = GetTableData( SQL_FINANCIAL_TRANSACTIONS_IMAGES_COUNT ) )
+            {
+                if ( dtCheckImagesCount != null )
+                {
+                    int counter = 0;
+                    int rowsPerPage = 100;
+                    bool moreImages = true;
+                    var imageCount = dtCheckImagesCount.Rows[0].Field<int>( "Count" );
+                    
+                    while ( moreImages )
+                    {
+                        using ( var dtCheckImages = GetTableData( String.Format( SQL_FINANCIAL_TRANSACTIONS_IMAGES, counter, counter + rowsPerPage ) ) )
+                        {
+                            foreach ( DataRow row in dtCheckImages.Rows )
+                            {
+                                // save check image
+                                var imageData = row.Field<byte[]>( "ImageData" );
+                                if ( imageData != null )
+                                {
+                                    var id = row.Field<int>( "Id" );
+                                    var path = Path.Combine( ImportPackage.ImageDirectory, "FinancialTransaction_" + id + "_0.jpg" );
+                                    File.WriteAllBytes( path, imageData );
+                                }
+                            }
+
+                            counter += rowsPerPage;
+
+                            if ( counter > imageCount )
+                            {
+                                moreImages = false;
+                            }
+                        }
                     }
                 }
             }
