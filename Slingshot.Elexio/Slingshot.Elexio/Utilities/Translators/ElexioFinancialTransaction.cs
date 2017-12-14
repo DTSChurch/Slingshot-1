@@ -61,14 +61,14 @@ namespace Slingshot.Elexio.Utilities.Translators
                     financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "Online-Reversal":
-                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
                     financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "Fund Adjustment":
-                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
                     break;
                 case "SMS Donation":
-                    financialTransaction.CurrencyType = CurrencyType.Other;
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
                     break;
 
                 // other common methods
