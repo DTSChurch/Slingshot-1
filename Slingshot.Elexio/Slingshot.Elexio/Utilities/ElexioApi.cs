@@ -373,10 +373,9 @@ SELECT
     ,'' AS [ScheduleId]
     ,'' AS [DeviceId]
     ,CASE WHEN EA.[CheckInTime] IS NULL THEN EA.[Date] ELSE EA.[CheckInTime] END AS [StartDateTime] -- Substitute Date when CheckInTime is null
-    ,EA.[CheckOutTime] AS [EndDateTime] --
+    ,EA.[CheckOutTime] AS [EndDateTime]
     ,'' AS [Note]
     ,'' AS [CampusId]
-	,S.MinistryID AS [ScheduleMinistryId]
 FROM [tblEventAttendance] EA
 INNER JOIN [qryLookupStatusForEvents] SFE ON SFE.CodeID = EA.Status
 LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID

@@ -37,13 +37,6 @@ namespace Slingshot.Elexio.Utilities.Translators
                 attendance.EndDateTime = endDateTime.Value;
             }
 
-            // service schedule is based off of ministry of type "Service"
-            var ministryId = row.Field<int?>( "ScheduleMinistryID" );
-            if ( ministryId.HasValue )
-            {
-                attendance.ScheduleId = ministryId;
-            }
-
             return attendance;
         }
     }
