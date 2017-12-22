@@ -54,15 +54,7 @@ SELECT
 				ELSE 'Unknown'
 			END AS [Summary],
 	-- TransactionCode --
-	CASE 
-		WHEN c.[CheckNu] LIKE 'T%' THEN CONVERT(VARCHAR(100),c.[CheckNu]) -- Online Donations
-		WHEN ISNUMERIC(c.CheckNu) = 1 THEN CONVERT(VARCHAR(100),c.[CheckNu])  -- Checks
-		WHEN c.[CheckNu] LIKE '%Payroll%' THEN CONVERT(VARCHAR(100),c.CheckNu) -- PAYROLL
-		WHEN c.[CheckNu] LIKE '%REEF%' THEN CONVERT(VARCHAR(100),c.CheckNu) -- Mission Giving
-		WHEN c.[CheckNu] LIKE '%FINANCE%' THEN CONVERT(VARCHAR(100),c.CheckNu)
-		WHEN c.[CheckNu] LIKE '%FINANCIAL%' THEN CONVERT(VARCHAR(100),c.CheckNu)
-		ELSE ''
-	END AS [TransactionCode],
+	c.[CheckNu] AS [TransactionCode],
 	-- CreatedByPersonId --
 	'' AS [CreatedByPersonId],
 	-- CreatedDateTime --
