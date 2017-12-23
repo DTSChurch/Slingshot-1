@@ -11,7 +11,7 @@ namespace Slingshot.F1.Utilities.Translators
 {
     public static class F1FinancialAccount
     {
-        public static FinancialAccount Translate( XElement inputAccount, bool? isTaxDeductible = null  )
+        public static FinancialAccount Translate( XElement inputAccount, bool? isTaxDeductible = null )
         {
             var financialAccount = new FinancialAccount();
 
@@ -27,7 +27,7 @@ namespace Slingshot.F1.Utilities.Translators
 
             var fundType = inputAccount.Element( "fundType" );
 
-            if(fundType != null)
+            if ( fundType != null )
             {
                 // If account type is "Contribution", account is tax deductible
                 if ( fundType.Element( "name" ).Value == "Contribution" )
@@ -39,7 +39,7 @@ namespace Slingshot.F1.Utilities.Translators
                     financialAccount.IsTaxDeductible = false;
                 }
             }
-            else if(isTaxDeductible != null)
+            else if ( isTaxDeductible != null )
             {
                 financialAccount.IsTaxDeductible = isTaxDeductible.Value;
             }

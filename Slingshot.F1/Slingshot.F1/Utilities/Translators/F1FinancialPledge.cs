@@ -21,14 +21,12 @@ namespace Slingshot.F1.Utilities.Translators
             var fundElement = inputPledge.Element( "fund" );
 
             // Checking if there is a subfund
-            if ( string.IsNullOrEmpty(fundElement.Element( "subFund" )?.Attribute( "id" ).Value) )
+            if ( string.IsNullOrEmpty( fundElement.Element( "subFund" )?.Attribute( "id" ).Value ) )
             {
-                // Using fund
                 pledge.AccountId = fundElement.Attribute( "id" ).Value.AsInteger();
             }
             else
             {
-                // using subFund
                 pledge.AccountId = fundElement.Element( "subFund" ).Attribute( "id" ).Value.AsInteger();
             }
 

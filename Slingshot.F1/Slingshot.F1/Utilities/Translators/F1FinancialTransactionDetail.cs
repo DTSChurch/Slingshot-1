@@ -18,18 +18,15 @@ namespace Slingshot.F1.Utilities.Translators
             transactionDetail.Id = inputTransactionDetail.Attribute( "id" ).Value.AsInteger();
 
             // Checking if there is a subfund
-            if ( string.IsNullOrEmpty(inputTransactionDetail.Element( "subFund" )?.Attribute( "id" ).Value) )
+            if ( string.IsNullOrEmpty( inputTransactionDetail.Element( "subFund" )?.Attribute( "id" ).Value ) )
             {
-                // Using fund
                 transactionDetail.AccountId = inputTransactionDetail.Element( "fund" )?.Attribute( "id" )?.Value.AsInteger();
             }
             else
             {
-                // using subFund
                 transactionDetail.AccountId = inputTransactionDetail.Element( "subFund" )?.Attribute( "id" )?.Value.AsInteger();
             }
 
-            //transactionDetail.AccountId = inputTransactionDetail.Element( "fund" )?.Attribute( "id" )?.Value.AsInteger();
             transactionDetail.Amount = inputTransactionDetail.Element( "amount" ).Value.AsDecimal();
             transactionDetail.TransactionId = inputTransactionDetail.Attribute( "id" ).Value.AsInteger();
 
