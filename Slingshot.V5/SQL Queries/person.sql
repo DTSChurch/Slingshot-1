@@ -96,14 +96,14 @@ SELECT
 		WHEN grade12.[NameCounter] IS NOT NULL THEN '12th'
 		ELSE ''
 	END AS [Grade]
-	-- GiveIndividually --
 	,'' AS [Attributes]
 	,'' AS [PhoneNumbers]
 	,'' AS [Addresses]
 	,CASE
-		WHEN m.[PledgeSpouse] = '-1' THEN 'TRUE'
-		WHEN m.[PledgeSpouse] = '0' THEN 'FALSE'
-		ELSE 'FALSE'
+		WHEN n.UnitNu = 0 AND m.PledgeSpouse = -1  THEN 'FALSE'
+		WHEN n.UnitNu = 1 AND m.PledgeSpouse = 0 THEN 'FALSE'
+		WHEN n.UnitNu = 2 THEN 'TRUE'
+		ELSE 'TRUE' 
 	END AS [GiveIndividually]
 	-- IsDeceased --
 	,'FALSE' AS [IsDeceased]
