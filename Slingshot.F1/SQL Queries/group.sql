@@ -89,7 +89,10 @@ SELECT DISTINCT
 	-- Id --
 	RLC.RLC_ID AS [Id]
 	-- Name --
-	,RLC.RLC_Name [Name]
+	,CASE 
+		WHEN RLC.RLC_Name = '' THEN 'Unknown'
+		ELSE RLC.RLC_Name
+		END AS [Name]
 	-- Order --
 	,'0' AS [Order]
 	-- ParentGroupId --
