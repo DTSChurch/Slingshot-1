@@ -157,8 +157,17 @@ namespace Slingshot.Elexio.Utilities.Translators
                     person.GiveIndividually = givesIndividually;
                 }
 
-                // campus?
+                // campus
+                var campusName = row.Field<string>( "Campus" );
+                var CampusId = row.Field<int>( "CampusId" );
+                if ( campusName.IsNotNullOrWhitespace() && CampusId > 0 )
+                {
+                    var campus = new Campus();
+                    campus.CampusName = campusName;
+                    campus.CampusId = CampusId;
 
+                    person.Campus = campus;
+                }
 
                 // attributes
                 var school = row.Field<string>( "School" );
