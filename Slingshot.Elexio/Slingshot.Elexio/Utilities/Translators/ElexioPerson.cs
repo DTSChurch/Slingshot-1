@@ -269,6 +269,22 @@ namespace Slingshot.Elexio.Utilities.Translators
                     }
                 }
 
+                // work
+                var workPhone = row.Field<string>( "WorkPhone" );
+                if ( workPhone.IsNotNullOrWhitespace() )
+                {
+                    // since the phone number could have invalid information, all non digits will be removed
+                    if ( workPhone.AsNumeric().IsNotNullOrWhitespace() && workPhone.AsNumeric().Count() <= 20 )
+                    {
+                        person.PhoneNumbers.Add( new PersonPhone
+                        {
+                            PhoneNumber = workPhone.AsNumeric(),
+                            PersonId = person.Id,
+                            PhoneType = "Work"
+                        } );
+                    }
+                }
+
                 // household address
                 var street = row.Field<string>( "Street" );
                 var city = row.Field<string>( "City" );
