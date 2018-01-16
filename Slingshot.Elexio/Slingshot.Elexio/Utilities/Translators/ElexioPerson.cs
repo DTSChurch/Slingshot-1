@@ -85,6 +85,16 @@ namespace Slingshot.Elexio.Utilities.Translators
 
                 // email
                 person.Email = row.Field<string>( "Email" );
+                var emailPreference = row.Field<string>( "EmailOptOut" ).AsBoolean();
+                if ( emailPreference )
+                {
+                    person.EmailPreference = EmailPreference.DoNotEmail;
+                }
+                else
+                {
+                    person.EmailPreference = EmailPreference.EmailAllowed;
+                }
+
 
                 // gender
                 var gender = row.Field<bool>( "Gender" );

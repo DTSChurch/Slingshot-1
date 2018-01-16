@@ -124,7 +124,7 @@ SELECT C.[ContactID] AS [Id]
 	-- Record Status
 	-- Inactive Reason
 	,LS.[Description] AS [ConnectionStatus]
-	-- Email Preference
+    ,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'True' ELSE 'False' END AS [EmailOptOut]
 	,C.[DateCreated] AS [CreatedDateTime]
 	,C.[DateUpdated] AS [ModifiedDateTime]
 	,HOH.Campus
