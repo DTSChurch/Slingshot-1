@@ -136,6 +136,7 @@ SELECT C.[ContactID] AS [Id]
 	,HP.[Value] AS [HomePhone]
 	,CP.[Value] AS [MobilePhone]
 	,WP.[Value] AS [WorkPhone]
+    ,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
 	
 	-- Address
 	,A.Street

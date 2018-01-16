@@ -260,11 +260,14 @@ namespace Slingshot.Elexio.Utilities.Translators
                     // since the phone number could have invalid information, all non digits will be removed
                     if( cellPhone.AsNumeric().IsNotNullOrWhitespace() && cellPhone.AsNumeric().Count() <= 20 )
                     {
+                        var isMessagingEnabled = row.Field<string>( "IsMessagingEnabled" ).AsBoolean();
+
                         person.PhoneNumbers.Add( new PersonPhone
                         {
                             PhoneNumber = cellPhone.AsNumeric(),
                             PersonId = person.Id,
-                            PhoneType = "Mobile"
+                            PhoneType = "Mobile",
+                            IsMessagingEnabled = isMessagingEnabled
                         } );
                     }
                 }
