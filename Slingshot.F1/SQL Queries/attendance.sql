@@ -9,5 +9,5 @@ ROW_NUMBER() OVER(ORDER BY Start_Date_Time) AS [AttendanceId]
 ,'' AS [EndDateTime]
 ,'' AS [Note]
 ,'' AS [CampusId]
-
 FROM Attendance
+ORDER BY Start_Date_Time
