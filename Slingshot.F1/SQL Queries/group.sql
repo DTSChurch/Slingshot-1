@@ -14,7 +14,6 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-	,'' AS [GroupMembers]
 
 FROM ActivityMinistry G1
 
@@ -32,7 +31,6 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-	,'' AS [GroupMembers]
 
 --WHERE G1.Ministry_Name IS NULL
 
@@ -53,7 +51,6 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-	,'' AS [GroupMembers]
 
 FROM ActivityMinistry G2
 
@@ -74,7 +71,6 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-	,'' AS [GroupMembers]
 
 FROM Activity_Group G3
 
@@ -104,7 +100,6 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-	,'' AS [GroupMembers]
 
 FROM RLC
 
