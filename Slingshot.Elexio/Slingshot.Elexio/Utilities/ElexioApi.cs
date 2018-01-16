@@ -707,7 +707,7 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
             ImportPackage.WriteToPackage( new PersonAttribute()
             {
                 Name = "School",
-                Key = "IsBaptized",
+                Key = "School",
                 Category = "Membership",
                 FieldType = "Rock.Field.Types.TextFieldType"
             } );
