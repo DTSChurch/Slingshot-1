@@ -134,7 +134,7 @@ SELECT C.[ContactID] AS [Id]
 	
 	-- Phones
 	,HP.[Value] AS [HomePhone]
-	,CP.Mobile AS [MobilePhone]
+	,CP.[Value] AS [MobilePhone]
 	,WP.[Value] AS [WorkPhone]
 	
 	-- Address
@@ -158,7 +158,6 @@ INNER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
 INNER JOIN [dbo].[qryLookupStatus] LS ON LS.CodeID = C.[Status]
 LEFT OUTER JOIN [dbo].[qryLookupMaritalStatus] MS ON MS.CodeID = C.MaritalStatus
 LEFT OUTER JOIN [dbo].[qryEmailAddressTopOne] E ON E.ContactID = C.ContactID
-LEFT OUTER JOIN [dbo].[qryPhoneMobileTopOne] CP ON CP.ContactID = C.ContactID
 LEFT OUTER JOIN [dbo].[qryLookupRace] LR ON LR.CodeID = C.Race
 LEFT OUTER JOIN [dbo].[qryLookupOccupations] LO ON LO.CodeID = C.Occupation
 LEFT OUTER JOIN [dbo].[qryLookupEducation] LE ON LE.CodeID = C.Education
@@ -181,6 +180,13 @@ OUTER APPLY (
 	WHERE CCC.[Description] LIKE 'Home'
 		AND CC.ContactID = C.ContactId
 ) HP -- Home Phone
+OUTER APPLY (
+	SELECT TOP 1 CC.[Value]
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
+	WHERE CCC.[Description] LIKE 'Mobile'
+		AND CC.ContactID = C.ContactId
+) CP -- Mobile Phone
 OUTER APPLY (
 	SELECT TOP 1 CC.[Value]
 	FROM tblContactCommunications CC
