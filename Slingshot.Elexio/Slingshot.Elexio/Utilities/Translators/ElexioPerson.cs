@@ -85,6 +85,7 @@ namespace Slingshot.Elexio.Utilities.Translators
 
                 // email
                 person.Email = row.Field<string>( "Email" );
+
                 var emailPreference = row.Field<string>( "EmailOptOut" ).AsBoolean();
                 if ( emailPreference )
                 {
@@ -114,6 +115,9 @@ namespace Slingshot.Elexio.Utilities.Translators
                 {
                     case "Married":
                         person.MaritalStatus = MaritalStatus.Married;
+
+                        // since anniversary date is a family field, only apply it to married people.
+                        person.AnniversaryDate = row.Field<DateTime?>( "AnniversaryDate" );
                         break;
                     case "Single":
                         person.MaritalStatus = MaritalStatus.Single;
@@ -158,7 +162,6 @@ namespace Slingshot.Elexio.Utilities.Translators
                 person.CreatedDateTime = row.Field<DateTime?>( "CreatedDateTime" );
                 person.ModifiedDateTime = row.Field<DateTime?>( "ModifiedDateTime" );
                 person.Birthdate = row.Field<DateTime?>( "Birthdate" );
-                person.AnniversaryDate = row.Field<DateTime?>( "AnniversaryDate" );
 
                 // gives individually
                 var givesIndividually = row.Field<bool?>( "GiveIndividually" );
