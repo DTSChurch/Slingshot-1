@@ -183,6 +183,17 @@ namespace Slingshot.Elexio.Utilities.Translators
                 }
 
                 // attributes
+                var membershipDate = row.Field<DateTime?>( "MembershipDate" );
+                if ( membershipDate.HasValue )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "MembershipDate",
+                        AttributeValue = membershipDate.Value.ToString( "o" ),
+                        PersonId = person.Id
+                    } );
+                }
+
                 var school = row.Field<string>( "School" );
                 if ( school.IsNotNullOrWhitespace() )
                 {

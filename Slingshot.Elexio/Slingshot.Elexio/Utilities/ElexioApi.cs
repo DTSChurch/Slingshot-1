@@ -124,19 +124,23 @@ SELECT C.[ContactID] AS [Id]
 	-- Record Status
 	-- Inactive Reason
 	,LS.[Description] AS [ConnectionStatus]
-    ,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'True' ELSE 'False' END AS [EmailOptOut]
+	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [EmailPreference]
 	,C.[DateCreated] AS [CreatedDateTime]
 	,C.[DateUpdated] AS [ModifiedDateTime]
 	,HOH.Campus
 	,HOH.CampusId
 	-- Grade
 	,C.TrackContributionsIndividually AS [GiveIndividually]
+	,CASE 
+		WHEN C.MembershipDate IS NOT NULL THEN C.MembershipDate
+		ELSE RA.StatusAsOf
+	 END AS [MembershipDate]
 	
 	-- Phones
 	,HP.[Value] AS [HomePhone]
 	,CP.[Value] AS [MobilePhone]
 	,WP.[Value] AS [WorkPhone]
-    ,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
+	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
 	
 	-- Address
 	,A.Street
@@ -195,6 +199,15 @@ OUTER APPLY (
 	WHERE CCC.[Description] LIKE 'Work'
 		AND CC.ContactID = C.ContactId
 ) WP -- Work Phone
+OUTER APPLY (
+	SELECT TOP 1  S.StatusAsOf
+	FROM [tblStatus] S
+	INNER JOIN tblCodes CCC ON CCC.CodeID = S.Status
+	INNER JOIN tblContacts CC ON CC.ContactID = S.ContactID
+	WHERE CCC.[Description] LIKE 'Regular Attender'
+		AND CC.ContactID = C.ContactId
+	ORDER BY S.ContactID, S.StatusAsOf
+) RA
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
     AND LS.[Description] != 'Inactivated by Mass Update' -- TODO: Remove since this is specific to Grace Church
 --ORDER BY A.AddressID, C.ContactID
@@ -725,6 +738,14 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
         public static void WritePersonAttributes()
         {
             // export person attribute list
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Membership Date",
+                Key = "MembershipDate",
+                Category = "Membership",
+                FieldType = "Rock.Field.Types.DateFieldType"
+            } );
+
             ImportPackage.WriteToPackage( new PersonAttribute()
             {
                 Name = "School",
