@@ -782,7 +782,7 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
             {
                 Name = "Baptism Date",
                 Key = "BaptismDate",
-                Category = "Elexio",
+                Category = "Membership",
                 FieldType = "Rock.Field.Types.DateFieldType"
             } );
 
@@ -790,7 +790,7 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
             {
                 Name = "Baptized Here",
                 Key = "BaptizedHere",
-                Category = "Elexio",
+                Category = "Membership",
                 FieldType = "Rock.Field.Types.BooleanFieldType"
             } );
         }
