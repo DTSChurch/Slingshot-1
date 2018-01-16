@@ -129,7 +129,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                         person.MaritalStatus = MaritalStatus.Unknown;
                         if ( maritalStatus.IsNotNullOrWhitespace() )
                         {
-                            person.Note = "MaritalStatus:" + maritalStatus;
+                            person.Note = "MaritalStatus: " + maritalStatus;
                         }
                         break;
                 }
