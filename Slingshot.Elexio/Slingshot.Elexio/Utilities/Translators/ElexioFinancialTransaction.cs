@@ -57,7 +57,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                     financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "Online-eCheck":
-                    financialTransaction.CurrencyType = CurrencyType.Check;
+                    financialTransaction.CurrencyType = CurrencyType.ACH;
                     financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "Online-Reversal":
