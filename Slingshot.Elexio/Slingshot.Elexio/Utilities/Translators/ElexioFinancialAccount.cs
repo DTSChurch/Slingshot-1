@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-
+using Slingshot.Core;
 using Slingshot.Core.Model;
 
 namespace Slingshot.Elexio.Utilities.Translators
@@ -13,6 +13,7 @@ namespace Slingshot.Elexio.Utilities.Translators
 
             financialAccount.Id = row.Field<int>( "Id" );
             financialAccount.Name = row.Field<string>( "Name" );
+            financialAccount.IsTaxDeductible = row.Field<string>( "IsTaxDeductible" ).AsBoolean();
 
             return financialAccount;
         }

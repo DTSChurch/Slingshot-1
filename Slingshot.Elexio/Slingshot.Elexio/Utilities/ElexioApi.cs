@@ -281,10 +281,12 @@ WHERE [Notes] IS NOT NULL
 ";
 
         private const string SQL_FINANCIAL_ACCOUNTS = @"
-SELECT [CodeID] AS [Id]
-  ,[Description] AS [Name]
-FROM [qryLookupFunds]
-ORDER BY SortOrder
+SELECT LF.[CodeID] AS [Id]
+  ,LF.[Description] AS [Name]
+  ,CASE WHEN C.[RangeStart] = 1 THEN 'True' ELSE 'False' END AS [IsTaxDeductible]
+FROM [qryLookupFunds] LF
+INNER JOIN tblCodes C ON C.CodeID = LF.CodeID
+ORDER BY LF.SortOrder
 ";
 
         private const string SQL_FINANCIAL_PLEDGES = @"
