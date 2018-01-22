@@ -440,10 +440,10 @@ UNION
 SELECT 3 AS [Id], 'Ministry Teams' AS [Name]
 UNION
 SELECT 4 AS [Id], 'Classes/Seminars' AS [Name]
---UNION
---SELECT 5 AS [Id], 'Events' AS [Name]
---UNION
---SELECT 24 AS [Id], 'Services' AS [Name]
+UNION
+SELECT 5 AS [Id], 'Events' AS [Name]
+UNION
+SELECT 24 AS [Id], 'Services' AS [Name]
 UNION
 SELECT 9999 AS [Id], 'Mailing Lists' AS [Name]
 ";
@@ -454,7 +454,7 @@ SELECT
 	,[Name]
 	,[MinistryType] AS [GroupTypeId]
 FROM tblMinistries M
-WHERE MinistryType IN (1,3,4)
+WHERE MinistryType IN (1,3,4,5,24)
 
 UNION
 
@@ -512,11 +512,11 @@ SELECT
     ,'' AS [DeviceId]
     ,CASE WHEN EA.[CheckInTime] IS NULL THEN EA.[Date] ELSE EA.[CheckInTime] END AS [StartDateTime] -- Substitute Date when CheckInTime is null
     ,EA.[CheckOutTime] AS [EndDateTime]
-    ,'' AS [Note]
-    ,'' AS [CampusId]
+    ,'Imported From Elexio' AS [Note]
+    ,ERD.CampusID AS [CampusId]
 FROM [tblEventAttendance] EA
-INNER JOIN [qryLookupStatusForEvents] SFE ON SFE.CodeID = EA.Status
-LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
+LEFT OUTER JOIN tblEventRoomDefinitions ERD ON ERD.ID = EA.RoomID
+LEFT OUTER JOIN tblEventDefinitions ED ON ED.ID = EA.EventID
     AND EA.CheckInTime >= { _modifiedSince.ToShortDateString() }
 ";
         #endregion
