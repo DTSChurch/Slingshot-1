@@ -322,6 +322,7 @@ WHERE RowNumber BETWEEN {{0}} AND {{1}}
 ";
 
         private static string SQL_PEOPLE_NOTES = $@"
+
 SELECT
 	 CN.[ContactNotesID] AS [Id]
 	,CN.[ContactID] AS [PersonId]
@@ -334,6 +335,20 @@ FROM [dbo].[tblContactNotes] CN
 INNER JOIN [dbo].[qryLookupNoteTypes] NT ON NT.CodeID = CN.NoteType
 WHERE [Notes] IS NOT NULL
     AND CN.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
+
+UNION
+
+SELECT
+	S.StatusID + 999000000 AS [Id] -- Offset the status id to prevent id collisions with notes
+	,S.ContactID AS [PersonId]
+	,'Status History' AS [NoteType]
+	,'' AS [Caption]
+	,0 AS [IsPrivateNote]
+	,LS.[Description] AS [Text]
+	,S.StatusAsOf AS [Date]
+FROM tblStatus S
+INNER JOIN qryLookupStatus LS ON LS.CodeID = S.[Status]
+WHERE S.StatusAsOf >= { _modifiedSince.ToShortDateString() }
 ";
 
         private const string SQL_FINANCIAL_ACCOUNTS = @"
