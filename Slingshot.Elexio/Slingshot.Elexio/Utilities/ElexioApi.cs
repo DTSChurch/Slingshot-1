@@ -107,7 +107,8 @@ namespace Slingshot.Elexio.Utilities
         #region SQL Queries
 
         private static string SQL_PEOPLE = $@"
-SELECT C.[ContactID] AS [Id]
+SELECT
+	C.[ContactID] AS [Id]
 	,A.AddressID AS [FamilyId]
 	,HOH.LastName + ' Family' AS [FamilyName]
 	,FP.[Description] AS [FamilyRole]
@@ -138,8 +139,11 @@ SELECT C.[ContactID] AS [Id]
 	
 	-- Phones
 	,HP.[Value] AS [HomePhone]
+	,CASE WHEN HP.Private = 1 THEN 'True' ELSE 'False' END AS [HomePhoneUnlisted]
 	,CP.[Value] AS [MobilePhone]
+	,CASE WHEN CP.Private = 1 THEN 'True' ELSE 'False' END AS [MobilePhoneUnlisted]
 	,WP.[Value] AS [WorkPhone]
+	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
 	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
 	
 	-- Address
@@ -180,21 +184,21 @@ OUTER APPLY (
 	ORDER BY LFP.CodeValue
 ) HOH -- Head of Household
 OUTER APPLY (
-	SELECT TOP 1 CC.[Value]
+	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
 	WHERE CCC.[Description] LIKE 'Home'
 		AND CC.ContactID = C.ContactId
 ) HP -- Home Phone
 OUTER APPLY (
-	SELECT TOP 1 CC.[Value]
+	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
 	WHERE CCC.[Description] LIKE 'Mobile'
 		AND CC.ContactID = C.ContactId
 ) CP -- Mobile Phone
 OUTER APPLY (
-	SELECT TOP 1 CC.[Value]
+	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
 	WHERE CCC.[Description] LIKE 'Work'

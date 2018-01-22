@@ -279,11 +279,14 @@ namespace Slingshot.Elexio.Utilities.Translators
                     // since the phone number could have invalid information, all non digits will be removed
                     if ( homePhone.AsNumeric().IsNotNullOrWhitespace() && homePhone.AsNumeric().Count() <= 20 )
                     {
+                        var isUnlisted = row.Field<string>( "HomePhoneUnlisted" ).AsBoolean();
+
                         person.PhoneNumbers.Add( new PersonPhone
                         {
                             PhoneNumber = homePhone.AsNumeric(),
                             PersonId = person.Id,
-                            PhoneType = "Home"
+                            PhoneType = "Home",
+                            IsUnlisted = isUnlisted
                         } );
                     }
                 }
@@ -296,13 +299,15 @@ namespace Slingshot.Elexio.Utilities.Translators
                     if( cellPhone.AsNumeric().IsNotNullOrWhitespace() && cellPhone.AsNumeric().Count() <= 20 )
                     {
                         var isMessagingEnabled = row.Field<string>( "IsMessagingEnabled" ).AsBoolean();
+                        var isUnlisted = row.Field<string>( "MobilePhoneUnlisted" ).AsBoolean();
 
                         person.PhoneNumbers.Add( new PersonPhone
                         {
                             PhoneNumber = cellPhone.AsNumeric(),
                             PersonId = person.Id,
                             PhoneType = "Mobile",
-                            IsMessagingEnabled = isMessagingEnabled
+                            IsMessagingEnabled = isMessagingEnabled,
+                            IsUnlisted = isUnlisted
                         } );
                     }
                 }
@@ -314,11 +319,14 @@ namespace Slingshot.Elexio.Utilities.Translators
                     // since the phone number could have invalid information, all non digits will be removed
                     if ( workPhone.AsNumeric().IsNotNullOrWhitespace() && workPhone.AsNumeric().Count() <= 20 )
                     {
+                        var isUnlisted = row.Field<string>( "WorkPhoneUnlisted" ).AsBoolean();
+
                         person.PhoneNumbers.Add( new PersonPhone
                         {
                             PhoneNumber = workPhone.AsNumeric(),
                             PersonId = person.Id,
-                            PhoneType = "Work"
+                            PhoneType = "Work",
+                            IsUnlisted = isUnlisted
                         } );
                     }
                 }
