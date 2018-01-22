@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Slingshot.Core;
 using Slingshot.Core.Model;
 
 namespace Slingshot.Elexio.Utilities.Translators
@@ -18,7 +18,7 @@ namespace Slingshot.Elexio.Utilities.Translators
             personNote.Id = row.Field<int>( "Id" );
             personNote.PersonId = row.Field<int>( "PersonId" );
             personNote.NoteType = row.Field<string>( "NoteType" );
-            personNote.IsPrivateNote = row.Field<bool>( "IsPrivateNote" );
+            personNote.IsPrivateNote = row.Field<string>( "IsPrivateNote" ).AsBoolean();
             personNote.Text = row.Field<string>( "Text" );
             personNote.DateTime = row.Field<DateTime>( "DateTime" );
 

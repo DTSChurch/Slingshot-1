@@ -122,8 +122,6 @@ SELECT
 	,MS.[Description] AS [MaritalStatus]
 	,C.[Birthdate]
 	,A.[Anniversary] AS [AnniversaryDate]
-	-- Record Status
-	-- Inactive Reason
 	,LS.[Description] AS [ConnectionStatus]
 	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [EmailOptOut]
 	,C.[DateCreated] AS [CreatedDateTime]
@@ -132,10 +130,7 @@ SELECT
 	,HOH.CampusId
 	,AG.[Description] AS [AgeGroup] -- Grade
 	,C.TrackContributionsIndividually AS [GiveIndividually]
-	,CASE 
-		WHEN C.MembershipDate IS NOT NULL THEN C.MembershipDate
-		--ELSE RA.StatusAsOf
-	 END AS [MembershipDate]
+	,C.MembershipDate AS [MembershipDate]
 	
 	-- Phones
 	,HP.[Value] AS [HomePhone]
@@ -322,13 +317,12 @@ WHERE RowNumber BETWEEN {{0}} AND {{1}}
 ";
 
         private static string SQL_PEOPLE_NOTES = $@"
-
 SELECT
 	 CN.[ContactNotesID] AS [Id]
 	,CN.[ContactID] AS [PersonId]
 	,NT.[Description] AS [NoteType]
 	,'' AS [Caption]
-	,[Private] AS [IsPrivateNote]
+	,CASE WHEN [Private] = 1 THEN 'True' ELSE 'False' END AS [IsPrivateNote]
 	,[Notes] AS [Text]
 	,[NoteDate] AS [DateTime]
 FROM [dbo].[tblContactNotes] CN
@@ -343,7 +337,7 @@ SELECT
 	,S.ContactID AS [PersonId]
 	,'Status History' AS [NoteType]
 	,'' AS [Caption]
-	,0 AS [IsPrivateNote]
+	,'False' AS [IsPrivateNote]
 	,LS.[Description] AS [Text]
 	,S.StatusAsOf AS [Date]
 FROM tblStatus S
@@ -456,12 +450,19 @@ SELECT 9999 AS [Id], 'Mailing Lists' AS [Name]
 
         private const string SQL_GROUPS = @"
 SELECT 
-	 [MinistryID] AS [Id] -- Might be an issue with duplicate group ids
+	 [MinistryID] AS [Id]
 	,[Name]
 	,[MinistryType] AS [GroupTypeId]
 FROM tblMinistries M
 WHERE MinistryType IN (1,3,4)
-ORDER BY MinistryID
+
+UNION
+
+SELECT
+	[MailingListID] + 999000000 AS [Id]
+	,[Name]
+	,9999 AS [GroupTypeId]
+FROM [tblMailingLists]
 ";
 
         private const string SQL_GROUP_MEMBERS = @"
@@ -473,7 +474,15 @@ FROM [tblInvolvement] I
 INNER JOIN tblMinistries M ON M.MinistryID = I.Activity AND M.MinistryType = I.ActivityType
 INNER JOIN tblContacts C ON C.ContactID = I.ContactID
 LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
-ORDER BY I.Activity, I.ContactID
+
+UNION
+
+SELECT DISTINCT
+	I.ContactID AS [PersonId]
+	,M.MailingListID + 999000000 AS [GroupId]
+	,'Member' AS [Role]
+FROM tblInvolvement I
+INNER JOIN tblMailingLists M ON M.MailingListId = I.Activity
 ";
 
         private const string SQL_ATTENDANCE_LOCATIONS = @"
