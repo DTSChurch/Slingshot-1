@@ -146,7 +146,11 @@ SELECT
 	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
 	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
 	
-	-- Social Media
+	---- Attributes
+	,ALLERGY.Allergy
+	,MEDICAL.Medical
+
+	-- Social Media attributes
 	,FB.[Value] AS [Facebook]
 	,IG.[Value] AS [Instagram]
 	,TW.[Value] AS [Twitter]
@@ -262,6 +266,18 @@ OUTER APPLY (
 	WHERE BGC.ContactID = C.ContactID
 	ORDER BY BGC.StageDate DESC
 ) BC
+OUTER APPLY (
+	SELECT TOP 1 CN.[Notes] AS [Allergy]
+	FROM tblContactNotes CN
+	WHERE CN.NoteType = 583 -- Allergy Notes
+		AND CN.ContactID = C.ContactID
+) ALLERGY
+OUTER APPLY (
+	SELECT TOP 1 CN.[Notes] AS [Medical]
+	FROM tblContactNotes CN
+	WHERE CN.NoteType = 585 -- Medical Notes
+		AND CN.ContactID = C.ContactID
+) MEDICAL
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
     AND LS.[Description] != 'Inactivated by Mass Update' -- TODO: Remove since this is specific to Grace Church
 --ORDER BY A.AddressID, C.ContactID
@@ -874,6 +890,22 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                 Key = "BackgroundCheckResult",
                 Category = "Safety & Security",
                 FieldType = "Rock.Field.Types.SelectSingleFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Allergy",
+                Key = "Allergy",
+                Category = "Childhood Information",
+                FieldType = "Rock.Field.Types.TextFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Medical",
+                Key = "Medical",
+                Category = "Childhood Information",
+                FieldType = "Rock.Field.Types.TextFieldType"
             } );
 
             // social media attributes
