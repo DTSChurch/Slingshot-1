@@ -124,16 +124,16 @@ SELECT C.[ContactID] AS [Id]
 	-- Record Status
 	-- Inactive Reason
 	,LS.[Description] AS [ConnectionStatus]
-	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [EmailPreference]
+	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [EmailOptOut]
 	,C.[DateCreated] AS [CreatedDateTime]
 	,C.[DateUpdated] AS [ModifiedDateTime]
 	,HOH.Campus
 	,HOH.CampusId
-	-- Grade
+	,AG.[Description] AS [AgeGroup] -- Grade
 	,C.TrackContributionsIndividually AS [GiveIndividually]
 	,CASE 
 		WHEN C.MembershipDate IS NOT NULL THEN C.MembershipDate
-		ELSE RA.StatusAsOf
+		--ELSE RA.StatusAsOf
 	 END AS [MembershipDate]
 	
 	-- Phones
@@ -166,6 +166,7 @@ LEFT OUTER JOIN [dbo].[qryEmailAddressTopOne] E ON E.ContactID = C.ContactID
 LEFT OUTER JOIN [dbo].[qryLookupRace] LR ON LR.CodeID = C.Race
 LEFT OUTER JOIN [dbo].[qryLookupOccupations] LO ON LO.CodeID = C.Occupation
 LEFT OUTER JOIN [dbo].[qryLookupEducation] LE ON LE.CodeID = C.Education
+LEFT OUTER JOIN [dbo].[qryAgeGroups] AG ON AG.CodeID = C.AgeGroup
 INNER JOIN [dbo].[tblAddresses] A ON A.AddressID = C.AddressID
 OUTER APPLY (
 	SELECT TOP 1 CC.ContactID
@@ -357,6 +358,8 @@ SELECT 4 AS [Id], 'Classes/Seminars' AS [Name]
 --SELECT 5 AS [Id], 'Events' AS [Name]
 --UNION
 --SELECT 24 AS [Id], 'Services' AS [Name]
+UNION
+SELECT 9999 AS [Id], 'Mailing Lists' AS [Name]
 ";
 
         private const string SQL_GROUPS = @"
@@ -792,6 +795,14 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                 Key = "BaptizedHere",
                 Category = "Membership",
                 FieldType = "Rock.Field.Types.BooleanFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Age Group",
+                Key = "AgeGroup",
+                Category = "Elexio",
+                FieldType = "Rock.Field.Types.TextFieldType"
             } );
         }
 

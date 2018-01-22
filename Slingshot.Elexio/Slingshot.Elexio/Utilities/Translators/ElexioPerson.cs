@@ -129,7 +129,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                         person.MaritalStatus = MaritalStatus.Unknown;
                         if ( maritalStatus.IsNotNullOrWhitespace() )
                         {
-                            person.Note = "MaritalStatus: " + maritalStatus;
+                            person.Note = "Marital Status: " + maritalStatus;
                         }
                         break;
                 }
@@ -256,6 +256,17 @@ namespace Slingshot.Elexio.Utilities.Translators
                     {
                         AttributeKey = "BaptizedHere",
                         AttributeValue = baptizedDate,
+                        PersonId = person.Id
+                    } );
+                }
+
+                var ageGroup = row.Field<string>( "AgeGroup" );
+                if ( ageGroup.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "AgeGroup",
+                        AttributeValue = ageGroup,
                         PersonId = person.Id
                     } );
                 }
