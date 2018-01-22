@@ -451,38 +451,49 @@ SELECT 9999 AS [Id], 'Mailing Lists' AS [Name]
         private const string SQL_GROUPS = @"
 SELECT 
 	 [MinistryID] AS [Id]
-	,[Name]
+	,CASE WHEN C.[Description] = 'Inactive' THEN [Name] + ' [Inactive]' ELSE [Name] END AS [Name]
 	,[MinistryType] AS [GroupTypeId]
 FROM tblMinistries M
+INNER JOIN tblCodes C ON C.CodeID = M.[Status]
 WHERE MinistryType IN (1,3,4,5,24)
 
 UNION
 
 SELECT
 	[MailingListID] + 999000000 AS [Id]
-	,[Name]
+	,CASE WHEN Active = 0 THEN [Name] + ' [Inactive]' ELSE [Name] END AS [Name]
 	,9999 AS [GroupTypeId]
 FROM [tblMailingLists]
 ";
 
         private const string SQL_GROUP_MEMBERS = @"
-SELECT DISTINCT
-	 I.[ContactID] AS [PersonId]
-	,I.[Activity] AS [GroupId]
-	,CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END AS [Role]
-FROM [tblInvolvement] I
-INNER JOIN tblMinistries M ON M.MinistryID = I.Activity AND M.MinistryType = I.ActivityType
-INNER JOIN tblContacts C ON C.ContactID = I.ContactID
-LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
+WITH CTE AS (
+	SELECT DISTINCT
+		 I.[ContactID] AS [PersonId]
+		,I.[Activity] AS [GroupId]
+		,CASE WHEN L.[Description] IS NULL THEN 'Unknown' ELSE L.[Description] END AS [Role]
+		,I.Active
+	FROM [tblInvolvement] I
+	INNER JOIN tblMinistries M ON M.MinistryID = I.Activity AND M.MinistryType = I.ActivityType
+	INNER JOIN tblContacts C ON C.ContactID = I.ContactID
+	LEFT OUTER JOIN [dbo].[qryLookup] L ON L.CodeID = I.CommitmentLevel
 
-UNION
+	UNION
 
-SELECT DISTINCT
-	I.ContactID AS [PersonId]
-	,M.MailingListID + 999000000 AS [GroupId]
-	,'Member' AS [Role]
-FROM tblInvolvement I
-INNER JOIN tblMailingLists M ON M.MailingListId = I.Activity
+	SELECT DISTINCT
+		I.ContactID AS [PersonId]
+		,M.MailingListID + 999000000 AS [GroupId]
+		,'Member' AS [Role]
+		,I.Active
+	FROM tblInvolvement I
+	INNER JOIN tblMailingLists M ON M.MailingListId = I.Activity
+)
+
+SELECT
+	PersonId
+	,GroupId
+	,CASE WHEN Active = 0 THEN [Role] +' [Inactive]' ELSE [Role] END AS [Role]
+FROM CTE
 ";
 
         private const string SQL_ATTENDANCE_LOCATIONS = @"
