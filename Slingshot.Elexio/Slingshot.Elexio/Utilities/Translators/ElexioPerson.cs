@@ -39,6 +39,9 @@ namespace Slingshot.Elexio.Utilities.Translators
                     case "Sr":
                         person.Suffix = "Sr.";
                         break;
+                    default:
+                        person.Suffix = suffix;
+                        break;
                 }
 
                 // family
@@ -149,12 +152,15 @@ namespace Slingshot.Elexio.Utilities.Translators
                         break;
                     case "Moved Away":
                         person.RecordStatus = RecordStatus.Inactive;
+                        person.InactiveReason = status;
                         break;
                     case "Drop Out Reason Unknown":
                         person.RecordStatus = RecordStatus.Inactive;
+                        person.InactiveReason = status;
                         break;
                     case "Left to Another Church":
                         person.RecordStatus = RecordStatus.Inactive;
+                        person.InactiveReason = status;
                         break;
                 }
 
