@@ -146,6 +146,12 @@ SELECT
 	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
 	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
 	
+	-- Social Media
+	,FB.[Value] AS [Facebook]
+	,IG.[Value] AS [Instagram]
+	,TW.[Value] AS [Twitter]
+	,LI.[Value] AS [LinkedIn]
+
 	-- Address
 	,A.Street
 	,A.City
@@ -208,6 +214,34 @@ OUTER APPLY (
 	WHERE CCC.[Description] LIKE 'Work'
 		AND CC.ContactID = C.ContactId
 ) WP -- Work Phone
+OUTER APPLY (
+	SELECT TOP 1 CC.*
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
+	WHERE CCC.[Description] LIKE 'Facebook'
+		AND CC.ContactID = C.ContactId
+) FB -- Facebook
+OUTER APPLY (
+	SELECT TOP 1 CC.*
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
+	WHERE CCC.[Description] LIKE '%Instagram%'
+		AND CC.ContactID = C.ContactId
+) IG -- Instagram
+OUTER APPLY (
+	SELECT TOP 1 CC.*
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
+	WHERE CCC.[Description] LIKE 'Twitter'
+		AND CC.ContactID = C.ContactId
+) TW -- Twitter
+OUTER APPLY (
+	SELECT TOP 1 CC.*
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
+	WHERE CCC.[Description] LIKE 'Linked-In'
+		AND CC.ContactID = C.ContactId
+) LI -- Linked-In
 OUTER APPLY (
 	SELECT TOP 1  S.StatusAsOf
 	FROM [tblStatus] S
@@ -840,6 +874,39 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                 Key = "BackgroundCheckResult",
                 Category = "Safety & Security",
                 FieldType = "Rock.Field.Types.SelectSingleFieldType"
+            } );
+
+            // social media attributes
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Facebook",
+                Key = "Facebook",
+                Category = "Social Media",
+                FieldType = "Rock.Field.Types.UrlLinkFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Instagram",
+                Key = "Instagram",
+                Category = "Social Media",
+                FieldType = "Rock.Field.Types.UrlLinkFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Twitter",
+                Key = "Twitter",
+                Category = "Social Media",
+                FieldType = "Rock.Field.Types.UrlLinkFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Linked-In",
+                Key = "LinkedIn",
+                Category = "Social Media",
+                FieldType = "Rock.Field.Types.UrlLinkFieldType"
             } );
         }
 

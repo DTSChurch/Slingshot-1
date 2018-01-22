@@ -293,6 +293,51 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
+                // social media attributes
+                var facebook = row.Field<string>( "Facebook" );
+                if ( facebook.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "Facebook",
+                        AttributeValue = facebook,
+                        PersonId = person.Id
+                    } );
+                }
+
+                var instagram = row.Field<string>( "Instagram" );
+                if ( instagram.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "Instagram",
+                        AttributeValue = instagram,
+                        PersonId = person.Id
+                    } );
+                }
+
+                var twitter = row.Field<string>( "Twitter" );
+                if ( twitter.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "Twitter",
+                        AttributeValue = twitter,
+                        PersonId = person.Id
+                    } );
+                }
+
+                var linkedin = row.Field<string>( "LinkedIn" );
+                if ( linkedin.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "LinkedIn",
+                        AttributeValue = linkedin,
+                        PersonId = person.Id
+                    } );
+                }
+
                 // phone numbers
                 // home
                 var homePhone = row.Field<string>( "HomePhone" );
