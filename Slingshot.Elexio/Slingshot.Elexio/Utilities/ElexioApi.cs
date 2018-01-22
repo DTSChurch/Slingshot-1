@@ -180,7 +180,6 @@ FROM [dbo].[tblContacts] C
 INNER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
 INNER JOIN [dbo].[qryLookupStatus] LS ON LS.CodeID = C.[Status]
 LEFT OUTER JOIN [dbo].[qryLookupMaritalStatus] MS ON MS.CodeID = C.MaritalStatus
-LEFT OUTER JOIN [dbo].[qryEmailAddressTopOne] E ON E.ContactID = C.ContactID
 LEFT OUTER JOIN [dbo].[qryLookupRace] LR ON LR.CodeID = C.Race
 LEFT OUTER JOIN [dbo].[qryLookupOccupations] LO ON LO.CodeID = C.Occupation
 LEFT OUTER JOIN [dbo].[qryLookupEducation] LE ON LE.CodeID = C.Education
@@ -197,6 +196,13 @@ OUTER APPLY (
 	WHERE CC.AddressID = C.AddressID 
 	ORDER BY LFP.CodeValue
 ) HOH -- Head of Household
+OUTER APPLY (
+	SELECT TOP 1CC.[Value] AS [Email]
+	FROM tblContactCommunications CC
+	INNER JOIN tblCodes CCC ON CCC.CodeId = CC.ValueType
+	WHERE CC.ContactID = C.ContactID
+		AND CCC.CodeValue = 'email'
+) E
 OUTER APPLY (
 	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
