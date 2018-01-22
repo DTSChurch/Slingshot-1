@@ -162,6 +162,10 @@ SELECT
 	,LE.[Description] AS [Education]
 	,[BaptismDate]
     ,CASE WHEN BaptizedHere = 1 THEN 'True' ELSE 'False' END AS [BaptizedHere]
+
+    -- Background Checks
+    ,BC.[BackgroundCheckDate]
+    ,BC.[BackgroundCheckResult]
 FROM [dbo].[tblContacts] C
 INNER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
 INNER JOIN [dbo].[qryLookupStatus] LS ON LS.CodeID = C.[Status]
@@ -213,6 +217,17 @@ OUTER APPLY (
 		AND CC.ContactID = C.ContactId
 	ORDER BY S.ContactID, S.StatusAsOf
 ) RA
+OUTER APPLY (
+	SELECT TOP 1
+		BGC.StageDate AS [BackgroundCheckDate]
+		,CASE 
+			WHEN BGC.StageStatus = 593 THEN 'Pass' 
+			WHEN BGC.StageStatus = 594 THEN 'Fail' 
+		 END AS [BackgroundCheckResult]
+	FROM tblBackgroundChecks BGC
+	WHERE BGC.ContactID = C.ContactID
+	ORDER BY BGC.StageDate DESC
+) BC
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
     AND LS.[Description] != 'Inactivated by Mass Update' -- TODO: Remove since this is specific to Grace Church
 --ORDER BY A.AddressID, C.ContactID
@@ -807,6 +822,22 @@ LEFT OUTER JOIN [qryLookupServices] S ON S.MinistryID = EA.EventID
                 Key = "AgeGroup",
                 Category = "Elexio",
                 FieldType = "Rock.Field.Types.TextFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Background Check Date",
+                Key = "BackgroundCheckDate",
+                Category = "Safety & Security",
+                FieldType = "Rock.Field.Types.DateFieldType"
+            } );
+
+            ImportPackage.WriteToPackage( new PersonAttribute()
+            {
+                Name = "Background Check Result",
+                Key = "BackgroundCheckResult",
+                Category = "Safety & Security",
+                FieldType = "Rock.Field.Types.SelectSingleFieldType"
             } );
         }
 

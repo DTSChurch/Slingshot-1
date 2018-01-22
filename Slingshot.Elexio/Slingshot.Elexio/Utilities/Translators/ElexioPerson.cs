@@ -271,6 +271,28 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
+                var bgDate = row.Field<DateTime?>( "BackgroundCheckDate" );
+                if ( bgDate.HasValue )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "BackgroundCheckDate",
+                        AttributeValue = bgDate.Value.ToString( "o" ),
+                        PersonId = person.Id
+                    } );
+                }
+
+                var bgResult = row.Field<string>( "BackgroundCheckResult" );
+                if ( bgResult.IsNotNullOrWhitespace() )
+                {
+                    person.Attributes.Add( new PersonAttributeValue
+                    {
+                        AttributeKey = "BackgroundCheckResult",
+                        AttributeValue = bgResult,
+                        PersonId = person.Id
+                    } );
+                }
+
                 // phone numbers
                 // home
                 var homePhone = row.Field<string>( "HomePhone" );
