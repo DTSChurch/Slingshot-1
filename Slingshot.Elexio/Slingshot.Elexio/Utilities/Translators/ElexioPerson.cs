@@ -176,6 +176,12 @@ namespace Slingshot.Elexio.Utilities.Translators
                     person.GiveIndividually = givesIndividually;
                 }
 
+                // if the person is a child, their giving is always separate
+                if ( person.FamilyRole == FamilyRole.Child )
+                {
+                    person.GiveIndividually = true;
+                }
+
                 // campus
                 var campusName = row.Field<string>( "Campus" );
                 var CampusId = row.Field<int>( "CampusId" );
