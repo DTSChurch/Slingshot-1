@@ -123,7 +123,7 @@ SELECT
 	,C.[Birthdate]
 	,A.[Anniversary] AS [AnniversaryDate]
 	,LS.[Description] AS [ConnectionStatus]
-	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [EmailOptOut]
+	,CASE WHEN C.EmailOptOutDate IS NOT NULL THEN 'True' ELSE 'False' END AS [EmailOptOut]
 	,C.[DateCreated] AS [CreatedDateTime]
 	,C.[DateUpdated] AS [ModifiedDateTime]
 	,HOH.Campus
