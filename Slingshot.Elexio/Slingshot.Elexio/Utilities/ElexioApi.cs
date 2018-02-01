@@ -172,7 +172,7 @@ SELECT
     ,BC.[BackgroundCheckDate]
     ,BC.[BackgroundCheckResult]
 FROM [dbo].[tblContacts] C
-INNER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
+LEFT OUTER JOIN [dbo].[qryLookupFamilyPositions] FP ON FP.CodeId = C.FamilyPosition
 INNER JOIN [dbo].[qryLookupStatus] LS ON LS.CodeID = C.[Status]
 LEFT OUTER JOIN [dbo].[qryLookupMaritalStatus] MS ON MS.CodeID = C.MaritalStatus
 LEFT OUTER JOIN [dbo].[qryLookupRace] LR ON LR.CodeID = C.Race
