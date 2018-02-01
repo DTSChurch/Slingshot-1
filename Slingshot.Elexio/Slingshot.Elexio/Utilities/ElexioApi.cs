@@ -189,7 +189,7 @@ OUTER APPLY (
 	LEFT OUTER JOIN qryLookupFamilyPositions LFP ON LFP.CodeID = CC.FamilyPosition
 	LEFT OUTER JOIN qryLookupCampus LC ON LC.CodeID = CC.[Service]
 	WHERE CC.AddressID = C.AddressID 
-	ORDER BY LFP.CodeValue
+	ORDER BY LFP.CodeID
 ) HOH -- Head of Household
 OUTER APPLY (
 	SELECT TOP 1CC.[Value] AS [Email]
@@ -265,6 +265,7 @@ OUTER APPLY (
 		 END AS [BackgroundCheckResult]
 	FROM tblBackgroundChecks BGC
 	WHERE BGC.ContactID = C.ContactID
+        AND BGC.AutomatedCheckTypes != ''
 	ORDER BY BGC.StageDate DESC
 ) BC
 OUTER APPLY (
@@ -361,7 +362,7 @@ SELECT
 										FROM tblContacts CC
 										LEFT OUTER JOIN qryLookupFamilyPositions LFP ON LFP.CodeID = CC.FamilyPosition
 										WHERE CC.AddressID = P.AddressID 
-										ORDER BY LFP.CodeValue) 
+										ORDER BY LFP.CodeID) 
 		ELSE ContactID 
 	 END AS [PersonId]
 	,P.[Fund] AS [AccountId]
@@ -392,7 +393,7 @@ SELECT
 										FROM tblContacts CC
 										LEFT OUTER JOIN qryLookupFamilyPositions LFP ON LFP.CodeID = CC.FamilyPosition
 										WHERE CC.AddressID = C.AddressID 
-										ORDER BY LFP.CodeValue) 
+										ORDER BY LFP.CodeID) 
 		  ELSE ContactID 
 	 END AS [AuthorizedPersonId]  -- if transaction is tied to an address, choose the head of household as the giver
 	,C.DateGiven AS [TransactionDate]
@@ -464,6 +465,7 @@ SELECT
 	,CASE WHEN Active = 0 THEN [Name] + ' [Inactive]' ELSE [Name] END AS [Name]
 	,9999 AS [GroupTypeId]
 FROM [tblMailingLists]
+WHERE [Type] = 1 -- Exclude Letters
 ";
 
         private const string SQL_GROUP_MEMBERS = @"
@@ -487,6 +489,7 @@ WITH CTE AS (
 		,I.Active
 	FROM tblInvolvement I
 	INNER JOIN tblMailingLists M ON M.MailingListId = I.Activity
+    WHERE M.[Type] = 1
 )
 
 SELECT
