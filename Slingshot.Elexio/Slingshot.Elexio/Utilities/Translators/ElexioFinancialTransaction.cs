@@ -62,13 +62,15 @@ namespace Slingshot.Elexio.Utilities.Translators
                     break;
                 case "Online-Reversal":
                     financialTransaction.CurrencyType = CurrencyType.Unknown;
-                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
                     break;
                 case "Fund Adjustment":
-                    financialTransaction.CurrencyType = CurrencyType.Unknown;
+                    financialTransaction.CurrencyType = CurrencyType.ACH;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
                     break;
                 case "SMS Donation":
-                    financialTransaction.CurrencyType = CurrencyType.Unknown;
+                    financialTransaction.CurrencyType = CurrencyType.CreditCard;
+                    financialTransaction.TransactionSource = TransactionSource.MobileApplication;
                     break;
 
                 // other common methods
@@ -90,7 +92,35 @@ namespace Slingshot.Elexio.Utilities.Translators
                     break;
                 case "Automatic Deposit":
                     financialTransaction.CurrencyType = CurrencyType.ACH;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
                     break;
+
+                // grace church methods
+                case "Non-cash":
+                    financialTransaction.CurrencyType = CurrencyType.NonCash;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
+                    break;
+                case "Old Online Credit Card":
+                    financialTransaction.CurrencyType = CurrencyType.CreditCard;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    break;
+                case "Old Online eCheck":
+                    financialTransaction.CurrencyType = CurrencyType.ACH;
+                    financialTransaction.TransactionSource = TransactionSource.Website;
+                    break;
+                case "Smart Giving - ACH":
+                    financialTransaction.CurrencyType = CurrencyType.ACH;
+                    financialTransaction.TransactionSource = TransactionSource.MobileApplication;
+                    break;
+                case "Smart Giving - Cards":
+                    financialTransaction.CurrencyType = CurrencyType.CreditCard;
+                    financialTransaction.TransactionSource = TransactionSource.MobileApplication;
+                    break;
+                case "Other":
+                    financialTransaction.CurrencyType = CurrencyType.Unknown;
+                    financialTransaction.TransactionSource = TransactionSource.OnsiteCollection;
+                    break;
+
                 default:
                     financialTransaction.CurrencyType = CurrencyType.Unknown;
                     financialTransaction.Summary += ( " Giving Method: " + givingMethod );
