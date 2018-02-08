@@ -1,0 +1,1 @@
+This directory holds SQL specific slingshot queries for Cedar Creek. 
