@@ -24,7 +24,7 @@ namespace Slingshot.Elexio.Utilities.Translators
             }
 
             var campusId = row.Field<int?>( "CampusId" );
-            if ( campusId.HasValue )
+            if ( campusId.HasValue && campusId.Value > 0 )
             {
                 attendance.CampusId = campusId;
             }

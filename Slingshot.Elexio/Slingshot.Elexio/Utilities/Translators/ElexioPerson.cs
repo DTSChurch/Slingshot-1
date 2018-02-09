@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Slingshot.Core;
 using Slingshot.Core.Model;
+using Slingshot.Core.Utilities;
 
 namespace Slingshot.Elexio.Utilities.Translators
 {
@@ -14,6 +15,7 @@ namespace Slingshot.Elexio.Utilities.Translators
         public static Person Translate( DataRow row )
         {
             var person = new Person();
+            var notes = new List<string>();
 
             if ( row.Field<int?>( "Id" ) != null )
             {
@@ -86,6 +88,8 @@ namespace Slingshot.Elexio.Utilities.Translators
                         break;
                 }
 
+                notes.Add( "Family Role: " + familyRole );
+
                 // email
                 person.Email = row.Field<string>( "Email" );
 
@@ -132,7 +136,7 @@ namespace Slingshot.Elexio.Utilities.Translators
                         person.MaritalStatus = MaritalStatus.Unknown;
                         if ( maritalStatus.IsNotNullOrWhitespace() )
                         {
-                            person.Note = "Marital Status: " + maritalStatus;
+                            notes.Add( "Marital Status: " + maritalStatus );
                         }
                         break;
                 }
@@ -261,13 +265,13 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
-                var baptizedDate = row.Field<string>( "BaptizedHere" );
-                if ( baptizedDate.IsNotNullOrWhitespace() )
+                var baptizedHere = row.Field<string>( "BaptizedHere" );
+                if ( baptizedHere.IsNotNullOrWhitespace() )
                 {
                     person.Attributes.Add( new PersonAttributeValue
                     {
                         AttributeKey = "BaptizedHere",
-                        AttributeValue = baptizedDate,
+                        AttributeValue = baptizedHere,
                         PersonId = person.Id
                     } );
                 }
@@ -455,7 +459,20 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
+                // Add Import Note
+                if ( notes.Any() )
+                {
+                    var personNote = new PersonNote();
+                    personNote.PersonId = person.Id;
+                    personNote.NoteType = "Import Notes";
+                    personNote.DateTime = DateTime.Now;
+                    personNote.Text = string.Join( ",", notes );
+
+                    ImportPackage.WriteToPackage( personNote );
+                }
+
                 return person;
+
             }
 
             return null;

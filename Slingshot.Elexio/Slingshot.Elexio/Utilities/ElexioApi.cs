@@ -139,7 +139,7 @@ SELECT
 	,CASE WHEN CP.Private = 1 THEN 'True' ELSE 'False' END AS [MobilePhoneUnlisted]
 	,WP.[Value] AS [WorkPhone]
 	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
-	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
+	,CASE WHEN C.SMSOptOutDate IS NULL AND CP.[Value] IS NOT NULL THEN 'True' ELSE 'False' END AS [IsMessagingEnabled]
 	
 	---- Attributes
 	,ALLERGY.Allergy
@@ -166,7 +166,7 @@ SELECT
 	,LO.[Description] AS [Occupation]
 	,LE.[Description] AS [Education]
 	,[BaptismDate]
-    ,CASE WHEN BaptizedHere = 1 THEN 'True' ELSE 'False' END AS [BaptizedHere]
+    ,CASE WHEN BaptizedHere = 1 THEN 'True' END AS [BaptizedHere]
 
     -- Background Checks
     ,BC.[BackgroundCheckDate]
@@ -202,7 +202,7 @@ OUTER APPLY (
 	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
-	WHERE CCC.[Description] LIKE 'Home'
+	WHERE CCC.[Description] LIKE 'Home Phone'
 		AND CC.ContactID = C.ContactId
 ) HP -- Home Phone
 OUTER APPLY (
@@ -265,7 +265,7 @@ OUTER APPLY (
 		 END AS [BackgroundCheckResult]
 	FROM tblBackgroundChecks BGC
 	WHERE BGC.ContactID = C.ContactID
-        AND BGC.AutomatedCheckTypes != ''
+        --AND BGC.AutomatedCheckTypes != ''
 	ORDER BY BGC.StageDate DESC
 ) BC
 OUTER APPLY (
