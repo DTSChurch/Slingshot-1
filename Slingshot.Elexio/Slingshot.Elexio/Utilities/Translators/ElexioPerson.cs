@@ -261,13 +261,13 @@ namespace Slingshot.Elexio.Utilities.Translators
                     } );
                 }
 
-                var baptizedDate = row.Field<string>( "BaptizedHere" );
-                if ( baptizedDate.IsNotNullOrWhitespace() )
+                var baptizedHere = row.Field<string>( "BaptizedHere" );
+                if ( baptizedHere.IsNotNullOrWhitespace() )
                 {
                     person.Attributes.Add( new PersonAttributeValue
                     {
                         AttributeKey = "BaptizedHere",
-                        AttributeValue = baptizedDate,
+                        AttributeValue = baptizedHere,
                         PersonId = person.Id
                     } );
                 }
