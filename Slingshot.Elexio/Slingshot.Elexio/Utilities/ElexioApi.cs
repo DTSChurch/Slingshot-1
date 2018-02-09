@@ -166,7 +166,7 @@ SELECT
 	,LO.[Description] AS [Occupation]
 	,LE.[Description] AS [Education]
 	,[BaptismDate]
-    ,CASE WHEN BaptizedHere = 1 THEN 'True' ELSE 'False' END AS [BaptizedHere]
+    ,CASE WHEN BaptizedHere = 1 THEN 'True' END AS [BaptizedHere]
 
     -- Background Checks
     ,BC.[BackgroundCheckDate]
