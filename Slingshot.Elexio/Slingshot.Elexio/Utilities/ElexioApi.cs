@@ -265,7 +265,7 @@ OUTER APPLY (
 		 END AS [BackgroundCheckResult]
 	FROM tblBackgroundChecks BGC
 	WHERE BGC.ContactID = C.ContactID
-        AND BGC.AutomatedCheckTypes != ''
+        --AND BGC.AutomatedCheckTypes != ''
 	ORDER BY BGC.StageDate DESC
 ) BC
 OUTER APPLY (
