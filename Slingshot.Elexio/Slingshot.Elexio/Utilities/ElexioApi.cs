@@ -202,7 +202,7 @@ OUTER APPLY (
 	SELECT TOP 1 CC.*
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeID = CC.ValueType
-	WHERE CCC.[Description] LIKE 'Home'
+	WHERE CCC.[Description] LIKE 'Home Phone'
 		AND CC.ContactID = C.ContactId
 ) HP -- Home Phone
 OUTER APPLY (
