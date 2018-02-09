@@ -139,7 +139,7 @@ SELECT
 	,CASE WHEN CP.Private = 1 THEN 'True' ELSE 'False' END AS [MobilePhoneUnlisted]
 	,WP.[Value] AS [WorkPhone]
 	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
-	,CASE WHEN C.SMSOptOutDate IS NOT NULL THEN 'False' ELSE 'True' END AS [IsMessagingEnabled]
+	,CASE WHEN C.SMSOptOutDate IS NULL AND CP.[Value] IS NOT NULL THEN 'True' ELSE 'False' END AS [IsMessagingEnabled]
 	
 	---- Attributes
 	,ALLERGY.Allergy
