@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slingshot.Elexio", "Slingshot.Elexio\Slingshot.Elexio.csproj", "{DAE7A8A5-21D7-4ADC-8F06-520BD45918EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slingshot.Core", "..\Slingshot.Core\Slingshot.Core\Slingshot.Core.csproj", "{B6072804-DC94-473F-A7E9-E175DB03CAD4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAE7A8A5-21D7-4ADC-8F06-520BD45918EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAE7A8A5-21D7-4ADC-8F06-520BD45918EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAE7A8A5-21D7-4ADC-8F06-520BD45918EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAE7A8A5-21D7-4ADC-8F06-520BD45918EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6072804-DC94-473F-A7E9-E175DB03CAD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6072804-DC94-473F-A7E9-E175DB03CAD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6072804-DC94-473F-A7E9-E175DB03CAD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6072804-DC94-473F-A7E9-E175DB03CAD4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BA62A592-6BCB-4BBA-B9B7-43A4AD2A7612}
+	EndGlobalSection
+EndGlobal
