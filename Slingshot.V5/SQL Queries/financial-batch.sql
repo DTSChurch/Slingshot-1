@@ -6,7 +6,7 @@ SELECT
 	-- CampusId --
 	,'' AS [CampusId]
 	-- StartDate --
-	,'' AS [StartDate]
+	,CONVERT(VARCHAR(10),ISNULL(bat.WhenSetup,GETDATE()),101) AS [StartDate]
 	-- EndDate --
 	,'' AS [EndDate]
 	-- Status --
@@ -22,7 +22,7 @@ SELECT
 	-- ModifiedByPersonId --
 	,'' AS [ModifiedByPersonId]
 	-- ControlAmount --
-	,'' AS [ModifiedDateTime]
+	,CONVERT(VARCHAR(10),ISNULL(bat.WhenSetup,''),101) AS [ModifiedDateTime]
 	,[Total] AS [ControlAmount]
 	-- List<FinancialTransactions> --
 	,'' AS [FinancialTransactions]

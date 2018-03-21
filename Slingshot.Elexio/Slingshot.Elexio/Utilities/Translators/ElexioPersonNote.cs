@@ -18,7 +18,11 @@ namespace Slingshot.Elexio.Utilities.Translators
             personNote.Id = row.Field<int>( "Id" );
             personNote.PersonId = row.Field<int>( "PersonId" );
             personNote.NoteType = row.Field<string>( "NoteType" );
-            personNote.IsPrivateNote = row.Field<string>( "IsPrivateNote" ).AsBoolean();
+
+            // Currently all private notes in Elexio will be public since private notes in
+            //  Rock require a created by person and that field is not stored as a person id.
+            personNote.IsPrivateNote = false;
+
             personNote.Text = row.Field<string>( "Text" );
             personNote.DateTime = row.Field<DateTime>( "DateTime" );
 

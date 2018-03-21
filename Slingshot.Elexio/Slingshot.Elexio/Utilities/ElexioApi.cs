@@ -134,11 +134,8 @@ SELECT
 	
 	-- Phones
 	,HP.[Value] AS [HomePhone]
-	,CASE WHEN HP.Private = 1 THEN 'True' ELSE 'False' END AS [HomePhoneUnlisted]
 	,CP.[Value] AS [MobilePhone]
-	,CASE WHEN CP.Private = 1 THEN 'True' ELSE 'False' END AS [MobilePhoneUnlisted]
 	,WP.[Value] AS [WorkPhone]
-	,CASE WHEN WP.Private = 1 THEN 'True' ELSE 'False' END AS [WorkPhoneUnlisted]
 	,CASE WHEN C.SMSOptOutDate IS NULL AND CP.[Value] IS NOT NULL THEN 'True' ELSE 'False' END AS [IsMessagingEnabled]
 	
 	---- Attributes
@@ -192,11 +189,12 @@ OUTER APPLY (
 	ORDER BY LFP.CodeID
 ) HOH -- Head of Household
 OUTER APPLY (
-	SELECT TOP 1CC.[Value] AS [Email]
+	SELECT TOP 1 CC.[Value] AS [Email]
 	FROM tblContactCommunications CC
 	INNER JOIN tblCodes CCC ON CCC.CodeId = CC.ValueType
 	WHERE CC.ContactID = C.ContactID
 		AND CCC.CodeValue = 'email'
+	ORDER BY [Priority] ASC
 ) E
 OUTER APPLY (
 	SELECT TOP 1 CC.*
