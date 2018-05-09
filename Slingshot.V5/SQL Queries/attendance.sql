@@ -1,7 +1,7 @@
 select
 ROW_NUMBER() OVER(ORDER BY OrgStats.SGDate) AS [AttendanceId]
 ,[NameCounter] as PersonId
-, Enrollments.SGOrgCounter as GroupId
+, GroupStats.SGOrgGrpCounter as GroupId
 ,'' AS [LocationId]
 ,'' AS [ScheduleId]
 ,'' AS [DeviceId]
@@ -17,3 +17,4 @@ from
  Shelby.SGOrg as Organizations on OrgStats.SGOrgCounter = Organizations.Counter
  where 
  Organizations.Descr like '%' and SGAttTyp = 'P'
+ 
