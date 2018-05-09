@@ -1,6 +1,5 @@
 -- This is the offset we use to build parent groups with
 DECLARE @ParentOffset int = '10000';
-
 --
 -- Getting all groups
 --

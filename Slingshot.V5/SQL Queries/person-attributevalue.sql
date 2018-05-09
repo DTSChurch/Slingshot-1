@@ -1,4 +1,6 @@
-SELECT 
+
+SELECT
+	distinct 
 	-- PersonId --
 	[NameCounter] AS [PersonId],
 	-- AttributeKey --
@@ -12,78 +14,33 @@ SELECT
 		WHEN ([Comment] IS NULL OR [Comment] = '') AND ([Start] IS NOT NULL) THEN ISNULL(REPLACE(REPLACE(dbo.KeepSafeCharacters([Comment], 1),CHAR(13),''),CHAR(10),''),'TRUE')
 		ELSE ISNULL(REPLACE(REPLACE([Comment], CHAR(13), ''), CHAR(10), ''),'TRUE')
 	END AS [AttributeValue]
-
 FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN (
-'2012',
-'2013',
-'2014',
---'ALLERG', -- We have imported this into an Allergy Note
---'AUTODONE',
---'AUTONCNS',
-'AUTONOND',
---'BENAPP',
---'BENDEN',
-'CAREAUTO',
-'CARECLN',
-'CAREERND',
-'CAREHOSP',
-'CAREMEAL',
-/*  -- We have imported the folloewing into Rock's Graduation Year
-'GRADE1',
-'GRADE10',
-'GRADE11',
-'GRADE12',
-'GRADE2',
-'GRADE3',
-'GRADE4',
-'GRADE5',
-'GRADE6',
-'GRADE7',
-'GRADE8',
-'GRADE9',
-'GRADEK',
-*/
+where [Counter] NOT IN (15476,15477,15479,28065,28066,28067) --get rid of the repeats, specifically for BCC
+UNION ALL
 
-'GRADES',
-'LASTCN',
-'MAIL',
-'MENATWRK',
---'NOTE1', -- We have imported this into a General Note
---'QDATA', -- We have imported this into a General Note (Set as Private)
-'SCHOOL',
-'SLA3K',
-'SLACH',
-'SLAEC',
-'SLAEL',
-'SLD3K',
-'SLDCH',
-'SLDEC',
-'SLDEL',
-'SLL12',
-'SLL35',
-'SLL3YO',
-'SLL4YO',
-'SLL5K',
-'SLLCH',
-'SLLCOF',
-'SLLEC',
-'SLLM3K',
-'SLLMEC',
-'SLLMEL',
-'SLLSUB',
-'SLW12',
-'SLW1YO',
-'SLW2YO',
-'SLW35',
-'SLW3YO',
-'SLW4YO',
-'SLW5YO',
-'SLWCH',
-'SLWCOF',
-'SLWINF',
-'SLWK',
-'SLWSUB',
---'SPECIA', -- We have imported this into a Medical Note
-'STAFF'
-)
+--Membership Date
+select 
+[NameCounter] AS [PersonId]
+, 'MembershipDate' as [AttributeKey]
+,  CONVERT(VARCHAR(10),ISNULL(DateReceived, GETDATE()), 101) as [AttributeValue]
+from Shelby.vw_MBNames
+where DateReceived is not null and MemberStatus = 'Member'
+UNION ALL
+
+--Baptism Date
+select 
+[NameCounter] AS [PersonId]
+, 'BaptismDate' as [AttributeKey]
+,  CONVERT(VARCHAR(10),ISNULL(DateReceived, GETDATE()), 101) as [AttributeValue]
+from Shelby.vw_MBNames
+where HowReceived = 'Baptism' and DateReceived is not null
+UNION ALL
+
+
+--Baptized Here
+select 
+[NameCounter] AS [PersonId]
+, 'BaptizedHere' as [AttributeKey]
+,  '1' as [AttributeValue]
+from Shelby.vw_MBNames
+where HowReceived = 'Baptism' and DateReceived is not null

@@ -61,7 +61,10 @@ SELECT
 	-- InactiveReason --
 	,'' AS [InactiveReason]
 	-- ConnectionStatus -- 
-	,'Attendee' AS [ConnectionStatus]
+	,CASE
+		WHEN ms.Descr IS NULL THEN 'Prospect'
+		ELSE ms.Descr
+		END AS [ConnectionStatus]
 	-- EmailPreference -- 
 	,CASE 
 		WHEN email.NameCounter IS NOT NULL THEN 'NoMassEmails'
@@ -130,3 +133,6 @@ LEFT OUTER JOIN Shelby.[NAProfiles] grade12 ON n.[NameCounter] = grade12.[NameCo
 LEFT OUTER JOIN Shelby.[NAProfiles] email ON n.[NameCounter] = email.[NameCounter] AND email.[Profile] = 'MAIL'
 WHERE
 M.NameCounter IS NOT NULL
+
+
+
