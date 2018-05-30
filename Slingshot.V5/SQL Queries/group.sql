@@ -21,6 +21,7 @@ FROM [Shelby].[SGOrgGrp] grp
 LEFT OUTER JOIN [Shelby].[SGOrgLvl] lvl ON grp.[SGOrgLvlCounter] = lvl.[Counter]
 LEFT OUTER JOIN [Shelby].[SGOrg] org ON lvl.[SGOrgCounter] = org.[Counter]
 
+
 UNION ALL
 --
 -- Making all parent groups

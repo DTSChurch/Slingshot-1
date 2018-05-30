@@ -1,3 +1,4 @@
+
 SELECT
 	-- Id --
 	n.NameCounter AS [Id]
@@ -66,10 +67,11 @@ SELECT
 		ELSE ms.Descr
 		END AS [ConnectionStatus]
 	-- EmailPreference -- 
-	,CASE 
-		WHEN email.NameCounter IS NOT NULL THEN 'NoMassEmails'
-		ELSE 'EmailAllowed'
-	END AS [EmailPreference]
+	, 'EmailAllowed' as [EmailPreference]
+	--,CASE 
+	--	WHEN email.NameCounter IS NOT NULL THEN 'NoMassEmails'
+	--	ELSE 'EmailAllowed'
+	--END AS [EmailPreference]
 	-- CreatedDateTime --
 	,CONVERT(VARCHAR(10),ISNULL(n.WhenSetup, GETDATE()), 101) AS [CreatedDateTime]
 	-- ModifiedDateTime --
@@ -83,22 +85,23 @@ SELECT
 	-- Note --
 	,REPLACE(REPLACE(n.[Memo], CHAR(13), ''), CHAR(10), '') AS [Note]
 	-- Grade --
-	,CASE
-		WHEN gradek.[NameCounter] IS NOT NULL THEN '2030'
-		WHEN grade1.[NameCounter] IS NOT NULL THEN '2029'
-		WHEN grade2.[NameCounter] IS NOT NULL THEN '2028'
-		WHEN grade3.[NameCounter] IS NOT NULL THEN '2027'
-		WHEN grade4.[NameCounter] IS NOT NULL THEN '2026'
-		WHEN grade5.[NameCounter] IS NOT NULL THEN '2025'
-		WHEN grade6.[NameCounter] IS NOT NULL THEN '2024'
-		WHEN grade7.[NameCounter] IS NOT NULL THEN '2023'
-		WHEN grade8.[NameCounter] IS NOT NULL THEN '2022'
-		WHEN grade9.[NameCounter] IS NOT NULL THEN '2021'
-		WHEN grade10.[NameCounter] IS NOT NULL THEN '2020'
-		WHEN grade11.[NameCounter] IS NOT NULL THEN '2019'
-		WHEN grade12.[NameCounter] IS NOT NULL THEN '2018'
-		ELSE ''
-	END AS [Grade]
+	, '' as [Grade]
+	--CASE
+	--	WHEN gradek.[NameCounter] IS NOT NULL THEN '2030'
+	--	WHEN grade1.[NameCounter] IS NOT NULL THEN '2029'
+	--	WHEN grade2.[NameCounter] IS NOT NULL THEN '2028'
+	--	WHEN grade3.[NameCounter] IS NOT NULL THEN '2027'
+	--	WHEN grade4.[NameCounter] IS NOT NULL THEN '2026'
+	--	WHEN grade5.[NameCounter] IS NOT NULL THEN '2025'
+	--	WHEN grade6.[NameCounter] IS NOT NULL THEN '2024'
+	--	WHEN grade7.[NameCounter] IS NOT NULL THEN '2023'
+	--	WHEN grade8.[NameCounter] IS NOT NULL THEN '2022'
+	--	WHEN grade9.[NameCounter] IS NOT NULL THEN '2021'
+	--	WHEN grade10.[NameCounter] IS NOT NULL THEN '2020'
+	--	WHEN grade11.[NameCounter] IS NOT NULL THEN '2019'
+	--	WHEN grade12.[NameCounter] IS NOT NULL THEN '2018'
+	--	ELSE ''
+	--END AS [Grade]
 	,'' AS [Attributes]
 	,'' AS [PhoneNumbers]
 	,'' AS [Addresses]
@@ -117,20 +120,20 @@ LEFT OUTER JOIN Shelby.[NASuffixes] s ON n.SuffixCounter = s.[Counter]
 LEFT OUTER JOIN Shelby.[MBMst] m ON n.NameCounter = m.NameCounter
 LEFT OUTER JOIN Shelby.[MBMstLif] wed ON n.NameCounter = wed.NameCounter AND wed.MBLifCounter = 4
 LEFT OUTER JOIN Shelby.[MBTextPicks] ms ON m.RelationshipCounter = ms.[Counter]
-LEFT OUTER JOIN Shelby.[NAProfiles] gradek ON n.[NameCounter] = gradek.[NameCounter] AND gradek.[Profile] = 'GRADEK'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade1 ON n.[NameCounter] = grade1.[NameCounter] AND grade1.[Profile] = 'GRADE1'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade2 ON n.[NameCounter] = grade2.[NameCounter] AND grade2.[Profile] = 'GRADE2'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade3 ON n.[NameCounter] = grade3.[NameCounter] AND grade3.[Profile] = 'GRADE3'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade4 ON n.[NameCounter] = grade4.[NameCounter] AND grade4.[Profile] = 'GRADE4'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade5 ON n.[NameCounter] = grade5.[NameCounter] AND grade5.[Profile] = 'GRADE5'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade6 ON n.[NameCounter] = grade6.[NameCounter] AND grade6.[Profile] = 'GRADE6'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade7 ON n.[NameCounter] = grade7.[NameCounter] AND grade7.[Profile] = 'GRADE7'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade8 ON n.[NameCounter] = grade8.[NameCounter] AND grade8.[Profile] = 'GRADE8'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade9 ON n.[NameCounter] = grade9.[NameCounter] AND grade9.[Profile] = 'GRADE9'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade10 ON n.[NameCounter] = grade10.[NameCounter] AND grade10.[Profile] = 'GRADE10'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade11 ON n.[NameCounter] = grade11.[NameCounter] AND grade11.[Profile] = 'GRADE11'
-LEFT OUTER JOIN Shelby.[NAProfiles] grade12 ON n.[NameCounter] = grade12.[NameCounter] AND grade12.[Profile] = 'GRADE12'
-LEFT OUTER JOIN Shelby.[NAProfiles] email ON n.[NameCounter] = email.[NameCounter] AND email.[Profile] = 'MAIL'
+--LEFT OUTER JOIN Shelby.[NAProfiles] gradek ON n.[NameCounter] = gradek.[NameCounter] AND gradek.[Profile] = 'GRADEK'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade1 ON n.[NameCounter] = grade1.[NameCounter] AND grade1.[Profile] = 'GRADE1'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade2 ON n.[NameCounter] = grade2.[NameCounter] AND grade2.[Profile] = 'GRADE2'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade3 ON n.[NameCounter] = grade3.[NameCounter] AND grade3.[Profile] = 'GRADE3'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade4 ON n.[NameCounter] = grade4.[NameCounter] AND grade4.[Profile] = 'GRADE4'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade5 ON n.[NameCounter] = grade5.[NameCounter] AND grade5.[Profile] = 'GRADE5'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade6 ON n.[NameCounter] = grade6.[NameCounter] AND grade6.[Profile] = 'GRADE6'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade7 ON n.[NameCounter] = grade7.[NameCounter] AND grade7.[Profile] = 'GRADE7'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade8 ON n.[NameCounter] = grade8.[NameCounter] AND grade8.[Profile] = 'GRADE8'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade9 ON n.[NameCounter] = grade9.[NameCounter] AND grade9.[Profile] = 'GRADE9'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade10 ON n.[NameCounter] = grade10.[NameCounter] AND grade10.[Profile] = 'GRADE10'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade11 ON n.[NameCounter] = grade11.[NameCounter] AND grade11.[Profile] = 'GRADE11'
+--LEFT OUTER JOIN Shelby.[NAProfiles] grade12 ON n.[NameCounter] = grade12.[NameCounter] AND grade12.[Profile] = 'GRADE12'
+--LEFT OUTER JOIN Shelby.[NAProfiles] email ON n.[NameCounter] = email.[NameCounter] AND email.[Profile] = 'MAIL'
 WHERE
 M.NameCounter IS NOT NULL
 

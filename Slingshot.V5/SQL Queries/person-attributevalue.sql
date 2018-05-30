@@ -1,21 +1,38 @@
+select 
+[NameCounter] as [PersonId]
+, [Profile] as [AttributeKey]
+--, Min([Start]) as [AttributeValue]
+, CONVERT(VARCHAR(10),Min([Start]), 101) as [AttributeValue]
+FROM [Shelby].[NAProfiles]
+WHERE [Profile] IN ('1-VISIT') and [Start] is not null
+group by [NameCounter],[Profile]
+UNION ALL
 
 SELECT
-	distinct 
-	-- PersonId --
+	distinct 	
 	[NameCounter] AS [PersonId],
-	-- AttributeKey --
-	CASE
-	WHEN [Profile] = 'SCHOOL' THEN 'V5SCHOOL'
-	ELSE [Profile]
-	END as [AttributeKey],
-	-- AttributeValue --
-	--REPLACE(ad.Adr1, ',', ' ')
-	CASE
-		WHEN ([Comment] IS NULL OR [Comment] = '') AND ([Start] IS NOT NULL) THEN ISNULL(REPLACE(REPLACE(dbo.KeepSafeCharacters([Comment], 1),CHAR(13),''),CHAR(10),''),'TRUE')
-		ELSE ISNULL(REPLACE(REPLACE([Comment], CHAR(13), ''), CHAR(10), ''),'TRUE')
-	END AS [AttributeValue]
+	[Profile] as [AttributeKey],
+	'TRUE' AS [AttributeValue]
 FROM [Shelby].[NAProfiles]
-where [Counter] NOT IN (15476,15477,15479,28065,28066,28067) --get rid of the repeats, specifically for BCC
+WHERE [Profile] IN ('RNOWLIST')
+UNION ALL
+
+SELECT
+	distinct 	
+	[NameCounter] AS [PersonId],
+	[Profile] as [AttributeKey],
+	'TRUE' AS [AttributeValue]
+FROM [Shelby].[NAProfiles]
+WHERE [Profile] IN ('18VFAITH')
+UNION ALL
+
+SELECT
+	distinct 	
+	[NameCounter] AS [PersonId],
+	[Profile] as [AttributeKey],
+	'TRUE' AS [AttributeValue]
+FROM [Shelby].[NAProfiles]
+WHERE [Profile] IN ('18VGREET')
 UNION ALL
 
 --Membership Date

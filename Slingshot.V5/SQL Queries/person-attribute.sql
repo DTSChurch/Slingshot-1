@@ -7,11 +7,24 @@ SELECT
 	-- Name --
 	[Descr] as [Name],
 	-- Field Type --
-	'Rock.Field.Types.TextFieldType' AS [FieldType],
-	-- Category --
+	'Rock.Field.Types.DateFieldType' AS [FieldType],	
 	'V5' AS [Category]
 FROM [Shelby].[NAProfileTypes] 
---WHERE [Profile] IN (
+WHERE [Profile] IN ('1-VISIT')
+UNION ALL
+SELECT 
+	-- Key --
+	CASE 
+	WHEN [Profile] = 'SCHOOL' THEN 'V5SCHOOL' 
+	ELSE [Profile]
+	END AS [Key],
+	-- Name --
+	[Descr] as [Name],
+	-- Field Type --
+	'Rock.Field.Types.BooleanFieldType' AS [FieldType],	
+	'V5' AS [Category]
+FROM [Shelby].[NAProfileTypes] 
+WHERE [Profile] IN ('18VFAITH','18VGREET','RNOWLIST')
 --'2012',
 --'2013',
 --'2014',
