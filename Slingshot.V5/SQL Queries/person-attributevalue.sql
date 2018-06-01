@@ -1,10 +1,18 @@
 select 
 [NameCounter] as [PersonId]
 , [Profile] as [AttributeKey]
---, Min([Start]) as [AttributeValue]
 , CONVERT(VARCHAR(10),Min([Start]), 101) as [AttributeValue]
 FROM [Shelby].[NAProfiles]
 WHERE [Profile] IN ('1-VISIT') and [Start] is not null
+group by [NameCounter],[Profile]
+UNION ALL
+
+select 
+[NameCounter] as [PersonId]
+, [Profile] as [AttributeKey]
+, CONVERT(VARCHAR(10),Min([Start]), 101) as [AttributeValue]
+FROM [Shelby].[NAProfiles]
+WHERE [Profile] IN ('2-VISIT') and [Start] is not null
 group by [NameCounter],[Profile]
 UNION ALL
 
@@ -61,3 +69,21 @@ select
 ,  '1' as [AttributeValue]
 from Shelby.vw_MBNames
 where HowReceived = 'Baptism' and DateReceived is not null
+UNION ALL
+
+--Memo
+select 
+[NameCounter] AS [PersonId]
+, 'MEMOONPERSON' as [AttributeKey]
+,  Memo as [AttributeValue]
+from Shelby.vw_MBNames  n
+where Memo != ''
+UNION ALL
+
+--Envelope Number
+select 
+[NameCounter] AS [PersonId]
+, 'core_GivingEnvelopeNumber' as [AttributeKey]
+,  Cast(EnvNu as varchar) as [AttributeValue]
+from Shelby.NANames n
+where EnvNu is not null and EnvNu > 0
