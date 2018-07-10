@@ -229,7 +229,7 @@ namespace Slingshot.F1.Utilities
             {
                 familyMembers = GetFamilyMembers();
             }
-            
+
             // write out the person attributes 
             var personAttributes = WritePersonAttributes();
 
@@ -909,12 +909,13 @@ namespace Slingshot.F1.Utilities
                         {
                             string attributeGroup = sourceAttributeGroup.Element( "name" ).Value;
                             string attributeName = attribute.Element( "name" ).Value;
+                            string attributeId = attribute.Attribute( "id" ).Value;
 
                             // comment attribute
                             var personAttributeComment = new PersonAttribute()
                             {
                                 Name = attributeName+ " Comment",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Comment",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Comment",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.TextFieldType"
                             };
@@ -925,7 +926,7 @@ namespace Slingshot.F1.Utilities
                             var personAttributeStartDate = new PersonAttribute()
                             {
                                 Name = attributeName + " Start Date",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "StartDate",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "StartDate",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.DateFieldType"
                             };
@@ -936,7 +937,7 @@ namespace Slingshot.F1.Utilities
                             var personAttributeEndDate = new PersonAttribute()
                             {
                                 Name = attributeName + " End Date",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "EndDate",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "EndDate",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.DateFieldType"
                             };
