@@ -4,10 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Xml.Linq;
-using Slingshot.Core;
 using Slingshot.Core.Model;
 using Slingshot.Core.Utilities;
 using Slingshot.Elexio.Utilities.Translators;
@@ -279,8 +275,6 @@ OUTER APPLY (
 		AND CN.ContactID = C.ContactID
 ) MEDICAL
 WHERE C.[DateUpdated] >= { _modifiedSince.ToShortDateString() }
-    AND LS.[Description] != 'Inactivated by Mass Update' -- TODO: Remove since this is specific to Grace Church
---ORDER BY A.AddressID, C.ContactID
 ";
 
         private static string SQL_PEOPLE_PHOTOS_COUNT = $@"
