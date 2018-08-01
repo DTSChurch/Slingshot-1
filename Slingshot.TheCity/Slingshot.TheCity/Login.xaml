@@ -1,0 +1,38 @@
+﻿<Window x:Class="Slingshot.TheCity.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Slingshot.TheCity"
+        mc:Ignorable="d"
+        Title="The City Connection Information" Height="300" Width="525" >
+    <Grid>
+        <Grid Margin="20,40,20,20" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="1" Content="API Key"/>
+            <TextBox Name="txtApiKey" Grid.Row="1" Grid.Column="1" Margin="0,2,0,10" Padding="3" Text="6dbb51307527dd14cced2e529e839b23db761d86" />
+
+            <Label Grid.Row="2">API Token</Label>
+            <TextBox Name="txtApiToken" Grid.Row="2" Grid.Column="1" Margin="0,2,0,10" Padding="3" Text="07c4b44282a4a217" />
+
+            <Button Name="btnLogin" Grid.Row="3" Grid.Column="1" IsDefault="True" Click="btnLogin_Click" Margin="0,0,0,5"  >
+                <Label>Login</Label>
+            </Button>
+
+            <TextBlock Name="lblMessage" Grid.Row="4" Grid.Column="1" TextWrapping="WrapWithOverflow"></TextBlock>
+        </Grid>
+    </Grid>
+</Window>

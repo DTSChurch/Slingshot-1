@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -220,8 +221,10 @@ namespace Slingshot.F1.Utilities
         /// </summary>
         /// <param name="modifiedSince">The modified since.</param>
         /// <param name="peoplePerPage">The people per page.</param>
-        public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 5000 )
+        public static void ExportIndividuals( DateTime modifiedSince, int peoplePerPage = 500 )
         {
+            TextInfo textInfo = new CultureInfo( "en-US", false ).TextInfo;
+
             HashSet<int> personIds = new HashSet<int>();
 
             // if empty, build head of household lookups
@@ -229,7 +232,7 @@ namespace Slingshot.F1.Utilities
             {
                 familyMembers = GetFamilyMembers();
             }
-            
+
             // write out the person attributes 
             var personAttributes = WritePersonAttributes();
 
@@ -276,7 +279,7 @@ namespace Slingshot.F1.Utilities
                                     //  twice by the API.  
                                     if ( !personIds.Contains( personNode.Attribute( "id" ).Value.AsInteger() ) )
                                     {
-                                        var importPerson = F1Person.Translate( personNode, familyMembers, personAttributes );
+                                        var importPerson = F1Person.Translate( personNode, familyMembers, personAttributes, textInfo );
 
                                         if ( importPerson != null )
                                         {
@@ -909,12 +912,13 @@ namespace Slingshot.F1.Utilities
                         {
                             string attributeGroup = sourceAttributeGroup.Element( "name" ).Value;
                             string attributeName = attribute.Element( "name" ).Value;
+                            string attributeId = attribute.Attribute( "id" ).Value;
 
                             // comment attribute
                             var personAttributeComment = new PersonAttribute()
                             {
                                 Name = attributeName+ " Comment",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Comment",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "Comment",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.TextFieldType"
                             };
@@ -925,7 +929,7 @@ namespace Slingshot.F1.Utilities
                             var personAttributeStartDate = new PersonAttribute()
                             {
                                 Name = attributeName + " Start Date",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "StartDate",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "StartDate",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.DateFieldType"
                             };
@@ -936,7 +940,7 @@ namespace Slingshot.F1.Utilities
                             var personAttributeEndDate = new PersonAttribute()
                             {
                                 Name = attributeName + " End Date",
-                                Key = attributeName.RemoveSpaces().RemoveSpecialCharacters() + "EndDate",
+                                Key = attributeId + "_" + attributeName.RemoveSpaces().RemoveSpecialCharacters() + "EndDate",
                                 Category = attributeGroup,
                                 FieldType = "Rock.Field.Types.DateFieldType"
                             };

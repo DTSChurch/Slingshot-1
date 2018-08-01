@@ -61,7 +61,10 @@ SELECT
 	-- InactiveReason --
 	,'' AS [InactiveReason]
 	-- ConnectionStatus -- 
-	,'Attendee' AS [ConnectionStatus]
+	,CASE
+		WHEN ms.Descr IS NULL THEN 'Unknown'
+		ELSE ms.Descr
+		END AS [ConnectionStatus]
 	-- EmailPreference -- 
 	,CASE 
 		WHEN email.NameCounter IS NOT NULL THEN 'NoMassEmails'
