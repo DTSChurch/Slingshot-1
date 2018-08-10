@@ -163,9 +163,19 @@ namespace Slingshot.City.Utilities.Translators
            
             // connection status
             string connectionStatus = row.Field<string>("member");
+            string constat = "Visitor";
             if (connectionStatus.IsNotNullOrWhitespace())
             {
-                person.ConnectionStatus = connectionStatus;
+                switch (connectionStatus.ToUpper().Trim())
+                {
+                    case "YES":
+                        constat = "Member";
+                        break;
+                    case "NO":
+                        constat = "Visitor";
+                        break;
+                }
+                person.ConnectionStatus = constat;
             }
            
             /*
