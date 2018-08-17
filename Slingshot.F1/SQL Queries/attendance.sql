@@ -10,4 +10,5 @@ ROW_NUMBER() OVER(ORDER BY Start_Date_Time) AS [AttendanceId]
 ,'' AS [Note]
 ,'' AS [CampusId]
 FROM Attendance
+WHERE Individual_ID IS NOT NULL
 ORDER BY Start_Date_Time
