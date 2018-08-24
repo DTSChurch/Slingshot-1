@@ -100,6 +100,7 @@ namespace Slingshot.City.Utilities
                         //clean up dates                      
                         row["created_at"] = ParseDateTime(row["created_at"].ToString());
                         row["birthdate"] = ParseDateTime(row["birthdate"].ToString());
+                        row["Membership Date"] = ParseDateTime(row["Membership Date"].ToString());
                         if (string.IsNullOrEmpty(row["family_id"].ToString().Trim()) == true)
                         {
                             //add 1 to max value

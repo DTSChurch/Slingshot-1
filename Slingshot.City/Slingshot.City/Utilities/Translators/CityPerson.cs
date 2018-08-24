@@ -71,10 +71,10 @@ namespace Slingshot.City.Utilities.Translators
             {
                 switch (isActive.Trim().ToUpper())
                 {
-                    case "NO":
+                    case "FALSE":
                         person.RecordStatus = RecordStatus.Inactive;
                         break;
-                    case "YES":
+                    case "TRUE":
                         person.RecordStatus = RecordStatus.Active;
                         break;
                     default:
@@ -102,40 +102,62 @@ namespace Slingshot.City.Utilities.Translators
             }
 
             // marital status
-            string maritalStatus = row.Field<string>("marital_status");
-
-            switch (maritalStatus)
+            string maritalStatus = row.Field<string>("family_role");
+            if(maritalStatus == null)
             {
-                case "Married":
-                    person.MaritalStatus = MaritalStatus.Married;
-                    break;
-                case "Re-Married":
-                    person.MaritalStatus = MaritalStatus.Married;
-                    break;
-                case "Divorced":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-                case "Never Married":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-                case "Widowed":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-                case "Engaged":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-                case "Separated":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-                case "Cohabiting":
-                    person.MaritalStatus = MaritalStatus.Single;
-                    break;
-
-                default:
-                    person.MaritalStatus = MaritalStatus.Unknown;
-                    notes.Add("Marital Status: " + maritalStatus);
-                    break;
+                person.MaritalStatus = MaritalStatus.Single;
             }
+            else
+            {
+                switch (maritalStatus.Trim())
+                {
+                    case "Spouse":
+                        person.MaritalStatus = MaritalStatus.Married;
+                        break;
+                    case "Child":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "TempChild":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "LegalChild":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Married":
+                        person.MaritalStatus = MaritalStatus.Married;
+                        break;
+                    case "Re-Married":
+                        person.MaritalStatus = MaritalStatus.Married;
+                        break;
+                    case "Divorced":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Never Married":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Widowed":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Engaged":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Separated":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Single":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+                    case "Cohabiting":
+                        person.MaritalStatus = MaritalStatus.Single;
+                        break;
+
+                    default:
+                        person.MaritalStatus = MaritalStatus.Unknown;
+                        notes.Add("Marital Status: " + maritalStatus);
+                        break;
+                }
+            }
+            
             // family
             int? familyId = row.Field<int?>("family_id");
             if (familyId != null)
@@ -160,9 +182,9 @@ namespace Slingshot.City.Utilities.Translators
                     notes.Add("Family Postion: Other");
                     break;
             }
-           
+
             // connection status
-            string connectionStatus = row.Field<string>("member");
+            /*string connectionStatus = row.Field<string>("member");
             string constat = "Visitor";
             if (connectionStatus.IsNotNullOrWhitespace())
             {
@@ -177,9 +199,17 @@ namespace Slingshot.City.Utilities.Translators
                 }
                 person.ConnectionStatus = constat;
             }
-           
-            /*
+           */
+            DateTime connectionStatus = row.Field<DateTime>("Membership Date");
+            string constat = "Visitor";
+            if(connectionStatus > DateTime.MinValue)
+            {
+                constat = "Member";                       
+            } 
+            person.ConnectionStatus = constat;
+
             // record status
+            /*
             string recordStatus = row.Field<string>("active");
             if (recordStatus.IsNotNullOrWhitespace())
             {
