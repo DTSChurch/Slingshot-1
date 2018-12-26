@@ -130,7 +130,7 @@ namespace Slingshot.City.Utilities.Translators
                         person.MaritalStatus = MaritalStatus.Married;
                         break;
                     case "Divorced":
-                        person.MaritalStatus = MaritalStatus.Single;
+                        person.MaritalStatus = MaritalStatus.Divorced;
                         break;
                     case "Never Married":
                         person.MaritalStatus = MaritalStatus.Single;

@@ -279,6 +279,19 @@ namespace Slingshot.CCB.Utilities
                         moreExist = false;
                     }
 
+                    // rate limiting
+                    var resetTime = response.Headers.Where( x => x.Name == "X-RateLimit-Reset" ).FirstOrDefault();
+                    if ( resetTime != null )
+                    {
+                        Int32 unixTimestamp = ( Int32 ) ( DateTime.UtcNow.Subtract( new DateTime( 1970, 1, 1 ) ) ).TotalSeconds;
+                        var delay = Int32.Parse( resetTime.Value.ToString() ) - unixTimestamp;
+
+                        if ( delay > 0 )
+                        {
+                            System.Threading.Thread.Sleep( delay * 1000 );
+                        }
+                    }
+
                     // developer safety blanket (prevents eating all the api calls for the day)
                     if ( loopCounter > loopThreshold )
                     {
@@ -404,6 +417,21 @@ namespace Slingshot.CCB.Utilities
                         moreIndividualsExist = false;
                     }
 
+                    // rate limiting
+                    var resetTime = response.Headers.Where( x => x.Name == "X-RateLimit-Reset" ).FirstOrDefault();
+                    if ( resetTime != null )
+                    {
+                        Int32 unixTimestamp = ( Int32 ) ( DateTime.UtcNow.Subtract( new DateTime( 1970, 1, 1 ) ) ).TotalSeconds;
+                        var delay = Int32.Parse( resetTime.Value.ToString() ) - unixTimestamp;
+
+                        if ( delay > 0 )
+                        {
+
+                            System.Threading.Thread.Sleep( delay * 1000 );
+
+                        }
+                    }
+
                     // developer safety blanket (prevents eating all the api calls for the day)
                     if ( loopCounter > loopThreshold )
                     {
@@ -495,6 +523,20 @@ namespace Slingshot.CCB.Utilities
                             ImportPackage.WriteToPackage( importBatch );
                         }
                     }
+
+                    // rate limiting
+                    var resetTime = response.Headers.Where( x => x.Name == "X-RateLimit-Reset" ).FirstOrDefault();
+                    if ( resetTime != null )
+                    {
+                        Int32 unixTimestamp = ( Int32 ) ( DateTime.UtcNow.Subtract( new DateTime( 1970, 1, 1 ) ) ).TotalSeconds;
+                        var delay = Int32.Parse( resetTime.Value.ToString() ) - unixTimestamp;
+
+                        if ( delay > 0 )
+                        {
+                            System.Threading.Thread.Sleep( delay * 1000 );
+                        }
+                    }
+
                 }
             }
             catch ( Exception ex )
@@ -841,6 +883,19 @@ namespace Slingshot.CCB.Utilities
                             }
                         }
                     }
+                    
+                    // rate limiting
+                    var resetTime = response.Headers.Where( x => x.Name == "X-RateLimit-Reset" ).FirstOrDefault();
+                    if ( resetTime != null )
+                    {
+                        Int32 unixTimestamp = ( Int32 ) ( DateTime.UtcNow.Subtract( new DateTime( 1970, 1, 1 ) ) ).TotalSeconds;
+                        var delay = Int32.Parse( resetTime.Value.ToString() ) - unixTimestamp;
+
+                        if ( delay > 0 )
+                        {
+                            System.Threading.Thread.Sleep( delay * 1000 );
+                        }
+                    }
                 }
             }
             catch ( Exception ex )
@@ -913,6 +968,19 @@ namespace Slingshot.CCB.Utilities
                         else
                         {
                             currentPage++;
+                        }
+                    }
+
+                    // rate limiting
+                    var resetTime = response.Headers.Where( x => x.Name == "X-RateLimit-Reset" ).FirstOrDefault();
+                    if ( resetTime != null )
+                    {
+                        Int32 unixTimestamp = ( Int32 ) ( DateTime.UtcNow.Subtract( new DateTime( 1970, 1, 1 ) ) ).TotalSeconds;
+                        var delay = Int32.Parse( resetTime.Value.ToString() ) - unixTimestamp;
+
+                        if ( delay > 0 )
+                        {
+                            System.Threading.Thread.Sleep( delay * 1000 );
                         }
                     }
 

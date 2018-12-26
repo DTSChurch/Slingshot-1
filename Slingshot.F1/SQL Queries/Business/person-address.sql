@@ -4,7 +4,7 @@ SELECT
 	ISNULL(HA.Address_2,'') AS Street2,
 	ISNULL(HA.City,'') AS City,
 	ISNULL(HA.[State],'') AS [State],
-	ISNULL(HA.Postal_Code,'') AS PostalCode,
+	ISNULL(HA.zip_code,'') AS PostalCode,
 	'' AS Country,
 	'' AS Latitude,
 	'' AS Longitude,

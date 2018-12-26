@@ -84,19 +84,19 @@ SELECT
 	,REPLACE(REPLACE(n.[Memo], CHAR(13), ''), CHAR(10), '') AS [Note]
 	-- Grade --
 	,CASE
-		WHEN gradek.[NameCounter] IS NOT NULL THEN '2030'
-		WHEN grade1.[NameCounter] IS NOT NULL THEN '2029'
-		WHEN grade2.[NameCounter] IS NOT NULL THEN '2028'
-		WHEN grade3.[NameCounter] IS NOT NULL THEN '2027'
-		WHEN grade4.[NameCounter] IS NOT NULL THEN '2026'
-		WHEN grade5.[NameCounter] IS NOT NULL THEN '2025'
-		WHEN grade6.[NameCounter] IS NOT NULL THEN '2024'
-		WHEN grade7.[NameCounter] IS NOT NULL THEN '2023'
-		WHEN grade8.[NameCounter] IS NOT NULL THEN '2022'
-		WHEN grade9.[NameCounter] IS NOT NULL THEN '2021'
-		WHEN grade10.[NameCounter] IS NOT NULL THEN '2020'
-		WHEN grade11.[NameCounter] IS NOT NULL THEN '2019'
-		WHEN grade12.[NameCounter] IS NOT NULL THEN '2018'
+		WHEN gradek.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,12,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade1.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,11,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade2.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,10,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade3.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,9,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade4.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,8,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade5.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,7,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade6.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,6,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade7.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,5,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade8.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,4,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade9.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,3,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade10.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,2,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade11.[NameCounter] IS NOT NULL THEN Format(DateAdd(year,1,DateAdd(Month, 5, GetDate())), 'yyyy')
+		WHEN grade12.[NameCounter] IS NOT NULL THEN Format(DateAdd(Month, 5, GetDate()), 'yyyy')
 		ELSE ''
 	END AS [Grade]
 	,'' AS [Attributes]

@@ -1,4 +1,5 @@
-
+SELECT * FROM
+(
 -- These are the very top level groups -- 
 -- They are the Ministry from F1 --
 SELECT DISTINCT
@@ -14,6 +15,7 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
+	, 1 as IsActive
 
 FROM ActivityMinistry G1
 
@@ -31,6 +33,7 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
+	, 1 as IsActive
 
 --WHERE G1.Ministry_Name IS NULL
 
@@ -51,6 +54,7 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
+	, Activity_Active as IsActive
 
 FROM ActivityMinistry G2
 
@@ -71,6 +75,8 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
+	, 1 as IsActive
+	
 
 FROM Activity_Group G3
 
@@ -100,7 +106,25 @@ SELECT DISTINCT
 	,1000 AS [GroupTypeId]
 	-- CampusId --
 	,'' AS [CampusId]
-
+	, Is_Active as IsActive
 FROM RLC
 
+
 --WHERE RLC.Activity_Group_ID IS NULL
+
+UNION ALL
+
+SELECT Distinct
+	990000000 + breakoutGroupId as Id
+	, 'Break Out Group: ' + BreakoutGroup as [Name]
+	, 0 as [Order]
+	, isnull(RLC_ID,Activity_ID) as ParentGroupId
+	, 1001 as GroupTypeId
+	,'' as CampusId
+	, 1 as IsActive
+FROM [ActivityAssignment]
+Where BreakoutGroupId is not null
+
+) tmp
+
+Order by Id Desc
