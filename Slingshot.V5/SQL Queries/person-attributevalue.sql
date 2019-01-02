@@ -87,3 +87,13 @@ WHERE [Profile] IN (
 --'SPECIA', -- We have imported this into a Medical Note
 'STAFF'
 )
+
+UNION ALL
+
+SElECT
+ d.[NameCounter] as PersonId
+ , 'V5BaptismDate' as AttributeKey
+ , CONVERT(varchar(10), d.Date1, 126) as AttributeValue
+FROM
+Shelby.MBMst d
+WHERE d.Date1 is not null
