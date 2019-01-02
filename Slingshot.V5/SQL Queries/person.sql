@@ -54,7 +54,11 @@ SELECT
 	,'' AS [Anniversary]
 	-- RecordStatus
 	,CASE M.RecordStatus
-		WHEN 0 THEN 'Active'
+		WHEN 0 THEN 
+			CASE
+				WHEN d.Date7 IS NOT NULL THEN 'Deceased'
+				ELSE 'Active'
+			END
 		WHEN 1 THEN 'Inactive'
 		ELSE 'Inactive'
 		END AS [RecordStatus]
@@ -109,7 +113,11 @@ SELECT
 		ELSE 'TRUE' 
 	END AS [GiveIndividually]
 	-- IsDeceased --
-	,'FALSE' AS [IsDeceased]
+	,CASE
+		WHEN d.Date7 IS NOT NULL THEN 'TRUE'
+		ELSE 'FALSE'
+	END
+	 AS [IsDeceased]
 
 FROM Shelby.NANames n
 LEFT OUTER JOIN Shelby.[NATitles] t ON n.TitleCounter = t.[Counter]
@@ -131,5 +139,6 @@ LEFT OUTER JOIN Shelby.[NAProfiles] grade10 ON n.[NameCounter] = grade10.[NameCo
 LEFT OUTER JOIN Shelby.[NAProfiles] grade11 ON n.[NameCounter] = grade11.[NameCounter] AND grade11.[Profile] = 'GRADE11'
 LEFT OUTER JOIN Shelby.[NAProfiles] grade12 ON n.[NameCounter] = grade12.[NameCounter] AND grade12.[Profile] = 'GRADE12'
 LEFT OUTER JOIN Shelby.[NAProfiles] email ON n.[NameCounter] = email.[NameCounter] AND email.[Profile] = 'MAIL'
+LEFT OUTER JOIN Shelby.[MBMst] d on d.[NameCounter] = n.[NameCounter]
 WHERE
 M.NameCounter IS NOT NULL
