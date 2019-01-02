@@ -12,7 +12,10 @@ SELECT
 	-- PhoneNumber --
 	,ISNULL(NULLIF(REPLACE(REPLACE(ph.PhoneNu, CHAR(13), ''), CHAR(10), ''), '0'), '') AS [PhoneNumber]
 	-- IsMessageingEnabled --
-	,'TRUE' AS [IsMessagingEnabled]
+	,CASE ph.PhoneCounter
+		When 80 THEN 'TRUE'
+		ELSE 'False'
+	END AS [IsMessagingEnabled]
 	-- IsUnlisted --
 	,CASE ph.Unlisted 
 		WHEN '0' THEN 'FALSE'
