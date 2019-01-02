@@ -51,7 +51,7 @@ SELECT
 	-- Birthdate --
 	,ISNULL(CONVERT(VARCHAR(10), CAST(N.Birthdate AS DATE), 101), '') AS [Birthdate]
 	-- Anniversary -- 
-	,'' AS [Anniversary]
+	,ISNULL(CONVERT(VARCHAR(10), CAST(d.Date2 AS DATE), 101), '') AS [Anniversary]
 	-- RecordStatus
 	,CASE M.RecordStatus
 		WHEN 0 THEN 
