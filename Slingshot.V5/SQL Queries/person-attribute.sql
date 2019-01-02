@@ -81,3 +81,10 @@ WHERE [Profile] IN (
 --'SPECIA',
 'STAFF'
 )
+UNION
+
+SELECT
+	'V5BaptismDate'
+	, 'Baptism Date'
+	, 'Rock.Field.Types.DateFieldType'
+	, 'V5'
