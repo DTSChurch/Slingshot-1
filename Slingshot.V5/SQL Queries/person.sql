@@ -56,7 +56,7 @@ SELECT
 	,CASE M.RecordStatus
 		WHEN 0 THEN 
 			CASE
-				WHEN d.Date7 IS NOT NULL THEN 'Deceased'
+				WHEN d.Date7 IS NOT NULL THEN 'Inactive'
 				WHEN d.Date8 IS NULL THEN 'Active'
 				ELSE 'Inactive'
 			END
