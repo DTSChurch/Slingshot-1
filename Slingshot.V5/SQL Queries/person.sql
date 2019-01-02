@@ -57,7 +57,8 @@ SELECT
 		WHEN 0 THEN 
 			CASE
 				WHEN d.Date7 IS NOT NULL THEN 'Deceased'
-				ELSE 'Active'
+				WHEN d.Date8 IS NULL THEN 'Active'
+				ELSE 'Inactive'
 			END
 		WHEN 1 THEN 'Inactive'
 		ELSE 'Inactive'
