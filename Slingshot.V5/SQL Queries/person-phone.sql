@@ -14,7 +14,7 @@ SELECT
 	-- IsMessageingEnabled --
 	,CASE ph.PhoneCounter
 		When 80 THEN 'TRUE'
-		ELSE 'False'
+		ELSE 'FALSE'
 	END AS [IsMessagingEnabled]
 	-- IsUnlisted --
 	,CASE ph.Unlisted 
