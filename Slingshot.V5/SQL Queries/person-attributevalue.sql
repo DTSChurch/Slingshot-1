@@ -1,4 +1,4 @@
-SELECT 
+SELECT DISTINCT
 	-- PersonId --
 	[NameCounter] AS [PersonId],
 	-- AttributeKey --
@@ -9,10 +9,9 @@ SELECT
 	-- AttributeValue --
 	--REPLACE(ad.Adr1, ',', ' ')
 	CASE
-		WHEN ([Comment] IS NULL OR [Comment] = '') AND ([Start] IS NOT NULL) THEN ISNULL(REPLACE(REPLACE(dbo.KeepSafeCharacters([Comment], 1),CHAR(13),''),CHAR(10),''),'TRUE')
+		WHEN ([Comment] IS NULL OR [Comment] = '') AND ([Start] IS NOT NULL) THEN CONVERT(varchar(10), [Start], 126)
 		ELSE ISNULL(REPLACE(REPLACE([Comment], CHAR(13), ''), CHAR(10), ''),'TRUE')
 	END AS [AttributeValue]
-
 FROM [Shelby].[NAProfiles]
 WHERE [Profile] IN (
 '2012',
@@ -97,3 +96,5 @@ SElECT
 FROM
 Shelby.MBMst d
 WHERE d.Date1 is not null
+
+ 
