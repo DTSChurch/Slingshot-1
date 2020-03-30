@@ -5,8 +5,8 @@ SELECT
 	c.[BatchNu] AS [BatchId],
 	-- AuthorizedPersonId --
 	c.NameCounter AS [AuthorizedPersonId],
-	-- TransactionDate --
-	CONVERT(VARCHAR(10),c.[CNDate],101) AS [TransactionDate],
+	-- TransactionDate, If no createdDate then use When Setup --
+	CONVERT(VARCHAR(10),ISNULL(c.[CNDate],c.[WhenSetup]),101) AS [TransactionDate],
 	-- TransactionType --
 	'Contribution' AS [TransactionType],
 	/* They currently have 220 Types.. WE are just going to classify everything as "Contribution"

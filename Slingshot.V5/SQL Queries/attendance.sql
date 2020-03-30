@@ -8,7 +8,7 @@ AttendanceDetails.Counter as [AttendanceId]
 , OrgStats.SGDate AS [StartDateTime]
 ,'' AS [EndDateTime]
 ,'' AS [Note]
-,'' AS [CampusId]
+,1 AS [CampusId]
 from
  Shelby.SGMstOrgAtt AttendanceDetails inner join
  Shelby.SGMstOrg Enrollments on AttendanceDetails.SGMstOrgCounter = Enrollments.Counter inner join
