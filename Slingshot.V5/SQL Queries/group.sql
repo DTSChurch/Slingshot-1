@@ -12,6 +12,8 @@ SELECT
 	,CASE WHEN grp.[Descr] ='' THEN 'No Name'
 		ELSE grp.[Descr]
 		END AS [Name]
+	-- Description --
+	,grp.Descr + ' ' + grp.RoomNu + ' ' + grp.RollHeading AS [Description]
 	-- Order --
 	,'0' AS [Order]
 	-- ParentGroupId --
@@ -19,17 +21,22 @@ SELECT
 	-- GroupTypeId --
 	,100 AS [GroupTypeId]
 	-- CampusId --
-	,0 AS [CampusId]
+	,'' AS [CampusId]
+	-- Capacity --
 	,'' AS Capacity
+	-- MeetingDay --
 	,'' AS MeetingDay
+	-- MeetingTime --
 	,'' AS MeetingTime
+	-- IsActive --
 	,1 AS IsActive
+	-- IsPublic --
 	,1 AS IsPublic
 FROM [Shelby].[SGOrgGrp] grp
 LEFT OUTER JOIN [Shelby].[SGOrgLvl] lvl ON grp.[SGOrgLvlCounter] = lvl.[Counter]
 LEFT OUTER JOIN [Shelby].[SGOrg] org ON lvl.[SGOrgCounter] = org.[Counter]
 WHERE grp.WhenUpdated >= @StartDate
-Group By grp.[Counter],grp.[Descr],grp.[SGOrgLvlCounter],lvl.SGOrgCounter,org.Descr
+Group By grp.[Counter],grp.[Descr],grp.[SGOrgLvlCounter],lvl.SGOrgCounter,org.Descr,grp.RoomNu,grp.RollHeading
 
 
 UNION ALL
@@ -41,6 +48,8 @@ SELECT
 	lvl.[Counter] + @ParentOffset AS [Id]
 	-- Name --
 	,lvl.[Descr] AS [Name]
+	-- Description --
+	,'' AS [Description]
 	-- Order --
 	,'0' AS [Order]
 	-- ParentGroupId --
@@ -76,6 +85,8 @@ SELECT
 	org.[Counter] + @ParentOffset + @ParentOffset AS [Id]
 	-- Name --
 	,org.[Descr] AS [Name]
+	-- Description --
+	,'' AS [Description]
 	-- Order --
 	,'0' AS [Order]
 	-- ParentGroupId --
@@ -102,4 +113,3 @@ WHERE org.[Counter] != 27 -- Exclude empty SECURITY ALERT group
 		WHERE grp.WhenUpdated >= @StartDate)
 		GROUP BY org.[Counter],org.[Descr],lvl.SGOrgCounter,org.Descr
 ORDER BY [Id] DESC
-
