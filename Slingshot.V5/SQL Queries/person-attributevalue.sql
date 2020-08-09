@@ -1,46 +1,37 @@
-select 
-[NameCounter] as [PersonId]
-, [Profile] as [AttributeKey]
-, CONVERT(VARCHAR(10),Min([Start]), 101) as [AttributeValue]
-FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN ('1-VISIT') and [Start] is not null
-group by [NameCounter],[Profile]
-UNION ALL
+--All Date Attribute Values
 
 select 
 [NameCounter] as [PersonId]
 , [Profile] as [AttributeKey]
 , CONVERT(VARCHAR(10),Min([Start]), 101) as [AttributeValue]
 FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN ('2-VISIT') and [Start] is not null
+WHERE [Profile] IN ('LASTCN','ATSOSASO','ATSOSTSO','ACTBASE','ATSOSTSL','ATSOSASL'
+	,'CNSOSASO','CNSOSTSO','CNRISKTR','CNRISKAR','ACTSOC','CNSOSTSL','CNSOSASL','CNRISKTK','CNRISKAK'
+	,'CNRISKAI','FRCLABEL','CNRISKTS','ATSOSAON','CNRISKTI','CNRISKAS','ALLERG','CNSOSAON','BENVAID') and [Start] is not null AND [NameCounter] > 0
 group by [NameCounter],[Profile]
+
 UNION ALL
 
-SELECT
-	distinct 	
-	[NameCounter] AS [PersonId],
-	[Profile] as [AttributeKey],
-	'TRUE' AS [AttributeValue]
-FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN ('RNOWLIST')
+--All Lettered Out Dates
+select 
+[NameCounter] as [PersonId]
+, 'LetteredOut' as [AttributeKey]
+, CONVERT(VARCHAR(10),Min(Date4), 101) as [AttributeValue]
+FROM [Shelby].[MBMst]
+WHERE Date4 <> '' 
+Group By [NameCounter]
+
 UNION ALL
 
-SELECT
-	distinct 	
-	[NameCounter] AS [PersonId],
-	[Profile] as [AttributeKey],
-	'TRUE' AS [AttributeValue]
-FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN ('18VFAITH')
-UNION ALL
+--All Lunch With Pastors Dates
+select 
+[NameCounter] as [PersonId]
+, 'PastorLunch' as [AttributeKey]
+, CONVERT(VARCHAR(10),Min(Date5), 101) as [AttributeValue]
+FROM [Shelby].[MBMst]
+WHERE Date5 <> '' 
+Group By [NameCounter]
 
-SELECT
-	distinct 	
-	[NameCounter] AS [PersonId],
-	[Profile] as [AttributeKey],
-	'TRUE' AS [AttributeValue]
-FROM [Shelby].[NAProfiles]
-WHERE [Profile] IN ('18VGREET')
 UNION ALL
 
 --Membership Date
@@ -87,3 +78,21 @@ select
 ,  Cast(EnvNu as varchar) as [AttributeValue]
 from Shelby.NANames n
 where EnvNu is not null and EnvNu > 0
+
+UNION ALL
+
+SELECT
+NameCounter As PersonId,
+'FirstVisit' As AttributeKey,
+CONVERT(VARCHAR(10),ISNULL(MIN(VisitDate), GETDATE()), 101) as [AttributeValue]
+FROM Shelby.MBMstDte 
+GROUP BY NameCounter
+
+UNION ALL
+
+SELECT
+NameCounter As PersonId,
+'LastVisit' As AttributeKey,
+CONVERT(VARCHAR(10),ISNULL(MAX(VisitDate), GETDATE()), 101) as [AttributeValue]
+FROM Shelby.MBMstDte 
+GROUP BY NameCounter

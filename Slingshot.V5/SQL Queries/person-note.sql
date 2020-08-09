@@ -1,3 +1,4 @@
+ 
 SELECT 
 	-- PersonId --
 	n.[NameCounter] AS [PersonId],
@@ -100,4 +101,27 @@ p7.[Comment] IS NOT NULL OR
 p8.[Comment] IS NOT NULL OR
 p9.[Comment] IS NOT NULL
 
-ORDER BY [PersonId]
+--ORDER BY [PersonId]
+
+UNION ALL 
+
+SELECT
+ L.NameCounter AS PersonId,
+ MBMstLifCounter AS Id,
+ L1.Descr As NoteType,
+ '' AS Caption,
+ 'FALSE' AS IsAlert,
+ 'FALSE' AS IsPrivateNote,
+ isnull(W1a.Descr, case W1b.TitleCounter when -1 then W1b.LastName else W1b.FirstMiddle + ' ' + W1b.LastName end) As Text,
+ L.WhenSetup AS DateTime,
+ '' AS [CreatedByPersonId]
+from
+ Shelby.MBMstLif as L inner join
+ Shelby.MBLif as L1 on L.MBLifCounter = L1.MBLifCounter left join
+ Shelby.MBTextPicks as W1a on L.Who1Counter = W1a.Counter left join
+ Shelby.NANames as W1b on L.Who1NameCounter = W1b.NameCounter left join
+ Shelby.MBTextPicks as W2a on L.Who2Counter = W2a.Counter left join
+ Shelby.NANames as W2b on L.Who2NameCounter = W2b.NameCounter left join
+ Shelby.MBTextPicks as Lo on L.LocationCounter = Lo.Counter left join
+ Shelby.MBTextPicks as CE on L.CongregationEnrolledCounter = CE.Counter left join
+ Shelby.MBTextPicks as T on L.TypeCounter = T.Counter
